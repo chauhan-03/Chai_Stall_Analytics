@@ -1,0 +1,95 @@
+{
+  "classification": {
+    "accuracy": 0.9992826816075687,
+    "sale_precision": 0.9995261973388084,
+    "sale_recall": 0.9997433011472464
+  },
+  "revenue": {
+    "true_cash_share": 0.22899657857479944,
+    "assumed": 0.25,
+    "upi_sales_error": 0.0019510254360159296,
+    "total_revenue_error": 0.0011598039813164823,
+    "daily_wape": 0.05010033664379283,
+    "days_within_range": 0.7715877437325905
+  },
+  "decomposition": {
+    "exact_basket_accuracy": 0.28386178540365303,
+    "exact_accuracy_conf_ge_0_6": 0.7968580715059588,
+    "share_conf_ge_0_6": 0.0729817347987665,
+    "item_total_wape": 0.24790847781205233,
+    "item_share_mae_pp": 0.9289893550289032,
+    "popularity_rank_spearman": 0.805128205128205,
+    "prior": "owner_estimate"
+  },
+  "combos": {
+    "precision_vs_true_lift_gt_1_3": 0.7,
+    "recall_of_true_top10": 0.6
+  },
+  "forecast_revenue": {
+    "wape_model": 0.1299261133141437,
+    "wape_last_week": 0.1743362831858407,
+    "p10_p90_coverage": 0.975609756097561,
+    "pinball": 547.7711405140685
+  },
+  "newsvendor": {
+    "profit_gain": 3790.0,
+    "owner_profit": 56130.0,
+    "waste_owner": 2085.0,
+    "waste_model": 537.0,
+    "lost_owner": 234.0,
+    "lost_model": 1016.0,
+    "safety_factor_sensitivity": {
+      "1.1": 57270.0,
+      "1.2": 57540.0,
+      "1.3": 55485.0,
+      "1.4": 51745.0
+    }
+  },
+  "elasticity": [
+    {
+      "item": "Plain Maggi",
+      "true": 1.4,
+      "estimate": 0.75,
+      "ci90": "[0.4, 1.1]",
+      "reliable": false,
+      "note": "9% of payments after the change were exactly \u20b950, shared with other common baskets"
+    },
+    {
+      "item": "Masala Veg Maggi",
+      "true": 1.4,
+      "estimate": 0.59,
+      "ci90": "[-0.49, 1.65]",
+      "reliable": true,
+      "note": "ok"
+    },
+    {
+      "item": "Kulhad Chai",
+      "true": 0.8,
+      "estimate": -0.78,
+      "ci90": "[-1.05, -0.54]",
+      "reliable": false,
+      "note": "6% of payments after the change were exactly \u20b930, shared with other common baskets"
+    }
+  ],
+  "diagnostics": {
+    "shifts": [
+      {
+        "slot": "night",
+        "hours": "20-00h",
+        "since": "2026-09-23",
+        "before_per_day": 2483,
+        "after_per_day": 2032,
+        "change_pct": -18.2,
+        "t_stat": -4.2
+      }
+    ],
+    "outage_recall": 1.0,
+    "outage_precision": 1.0
+  },
+  "khata": {
+    "estimated": 8181,
+    "true_all": 79225.0,
+    "true_bad_debt_graduated": 70.0,
+    "true_active_upi_settlers": 2565.0
+  }
+}

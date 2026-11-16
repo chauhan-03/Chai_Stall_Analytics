@@ -1,0 +1,6 @@
+item_id,effective_date,event,new_price,old_price
+MAGGI,2026-09-01,price_change,50,40.0
+MASALA_MAGGI,2026-09-01,price_change,60,55.0
+KULHAD_CHAI,2026-01-15,price_change,30,25.0
+COLD_COFFEE,2026-03-15,launch,50,
+COMBO_CS,2026-02-01,launch,25,
