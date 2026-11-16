@@ -73,19 +73,17 @@ def make_customers(rng: np.random.Generator, items: list) -> pd.DataFrame:
             rate = float(np.clip(rng.lognormal(np.log(0.047), 0.95), 0.003, 0.9))
             cash_p = float(rng.beta(1.5, 6.0))
             chrono = rng.choice(["early", "normal", "owl"], p=[0.18, 0.52, 0.30])
-            khata = bool(rate > 0.35 and rng.random() < 0.25)
         else:
             rate = float(np.clip(rng.lognormal(np.log(0.16), 0.7), 0.01, 1.2))
             cash_p = float(rng.beta(2.5, 3.0))
             chrono = rng.choice(["early", "normal", "owl"], p=[0.45, 0.50, 0.05])
-            khata = bool(rng.random() < 0.18)
         # persistent taste: gamma noise around the menu's base popularity
         fav = base * rng.gamma(0.9, 1 / 0.9, n_items)
         rows.append({
             "customer_id": f"C{cid:05d}", "type": ctype, "first": first, "last": last,
             "display_name": _display_name(rng, first, last), "app": app, "vpa": vpa,
             "active_from": a_from, "active_to": a_to, "rate": rate, "cash_p": cash_p,
-            "chronotype": chrono, "khata": khata,
+            "chronotype": chrono,
             "stays_winter": bool(rng.random() < (0.12 if ctype == "student" else 0.85)),
             "stays_summer": bool(rng.random() < (0.20 if ctype == "student" else 0.80)),
             "group_payer": float(rng.beta(2, 5)),

@@ -11,7 +11,7 @@ stall at BITS Pilani, Nov 2025 – Nov 2026) with a hidden **answer key** scores
 Paytm statement (.xlsx) + menu.csv
         │
         ▼
- 1. ingest        classify rows: sale / khata / refund / duplicate / supplier / self-transfer …
+ 1. ingest        classify rows: sale / refund / duplicate / supplier / self-transfer / personal …
  2. decompose     EM basket model: which items add up to each payment (time, weather, remarks)
  3. combos        association rules from customer-typed remarks
  4. forecast      gradient-boosted model + conformal P10–P90 (calendar, weather, recent level)
@@ -19,7 +19,7 @@ Paytm statement (.xlsx) + menu.csv
  6. menu matrix   Stars / Plowhorses / Puzzles / Dogs
  7. what-if       price elasticity (difference-in-differences) → price simulator
  8. diagnostics   lasting shifts (competitor), UPI outages, period comparison
- 9. customers     regulars, churn, khata
+ 9. customers     regulars, churn, new customers
         │
         ▼
  Agent (Claude + tools)  "Kal kitne samose banau?" → prep_plan → answer + range + one suggestion
@@ -52,30 +52,34 @@ Full details are in [eval/report.md](eval/report.md).
 
 | Stage | Result |
 |---|---|
-| Statement row classification | **99.9%** accuracy |
-| UPI sales recovered | 0.2% error |
-| Total revenue incl. cash (25% assumed vs 22.9% true) | +0.1% for the year; 5.0% daily WAPE |
-| Item mix (which items sold) | 24.8% WAPE on totals; popularity rank ρ = 0.81; daily correlation 0.6–0.94 |
-| Exact basket per payment | 28% overall, **80%** when the model is ≥60% confident |
-| Combos | 70% of reported rules are real; finds 6 of the 10 strongest true pairs |
-| Revenue forecast (6 weeks out) | **13.0% WAPE** vs 17.4% for "same day last week"; P10–P90 covers 98% (conservative) |
-| Prep plan vs owner's habit | **+₹3,790 profit** on batch items in 6 weeks; waste 2,085 → 537 units, but more stockouts |
-| Competitor detection | night sales −18% from 23 Sep (true: 21 Sep) |
-| UPI outages | 3 of 3 found, 0 false alarms |
-| Agent, offline router baseline | 61% right tool, 100% faithful numbers, 100% end with an action |
+| Statement row classification | **100%** accuracy |
+| UPI sales recovered | 0.07% error |
+| Total revenue incl. cash (25% assumed vs 22.9% true) | +2.9% for the year; 5.8% daily WAPE |
+| Item mix (which items sold) | 28.7% WAPE on totals; popularity rank ρ = 0.76 |
+| Exact basket per payment | 24% overall, **79%** when the model is ≥60% confident |
+| Combos | **90%** of reported rules are real; finds 8 of the 10 strongest true pairs |
+| Revenue forecast (6 weeks out) | **14.1% WAPE** vs 20.1% for "same day last week"; P10–P90 covers 95% (conservative) |
+| Prep plan vs owner's habit | +₹1,035 profit on batch items in 6 weeks; waste 2,088 → 1,266 units, but more stockouts |
+| Competitor detection | **missed**: flags an evening rise from 9 Sep instead of the night drop from 21 Sep |
+| UPI outages | 3 of 3 found, 3 false alarms |
+| Agent, offline router baseline | 58% right tool, 100% faithful numbers, 100% end with an action |
+
+Results depend on the random seed: an earlier draw of the same simulation gave item-mix error 24.8%,
+forecast 13.0%, prep gain +₹3,790 and caught the competitor. Report results over several seeds before
+drawing firm conclusions.
 
 ### Honest limits (what the answer key shows)
 
 - **Same-price items are hard to separate.** A ₹20 payment could be a cold drink, water, shikanji or
-  mirchi bada. Cheap items are under-counted (masala chai −42%, mirchi bada −43%) and some over-counted
-  (shikanji +64%). The owner's rough daily estimates (a menu column) used as a Bayesian prior cut the
-  error from 29% (customer remarks only) to 25%.
+  mirchi bada. Chai is under-counted (masala chai −40%, cutting chai −35%) and some items over-counted
+  (aloo paratha +172%). The owner's rough daily estimates (a menu column) used as a Bayesian prior cut the
+  error by about 4–5 points versus remarks alone.
 - **Prep plan under-prepares fried snacks** because of that bias and because sell-out days hide true
   demand. Fix: a one-tap "sold out at hh:mm" log.
-- **Elasticity is attenuated.** Maggi estimated 0.75 (true 1.4). When a new price equals a very common
-  amount (kulhad ₹30), the tool flags the estimate as unreliable instead of using it.
-- **Cash and khata are invisible.** Revenue is a range driven by the cash-share assumption; khata
-  outstanding is a rough lower bound.
+- **Elasticity is not recoverable here.** Maggi estimated −0.13 (true 1.4). When the new price equals a
+  very common amount (₹50, ₹30), the tool flags the estimate as unreliable and falls back to a default
+  instead of using it.
+- **Cash is invisible.** Revenue is a range driven by the cash-share assumption.
 
 ## Project layout
 

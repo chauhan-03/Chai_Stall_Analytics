@@ -75,9 +75,6 @@ def main():
     o.to_csv(KEY / "orders.csv", index=False)
     out["order_items"].to_csv(KEY / "order_items.csv", index=False)
     out["daily"].to_csv(KEY / "daily_truth.csv", index=False)
-    out["khata"].to_csv(KEY / "khata_settlements.csv", index=False)
-    out["khata_outstanding"].rename_axis("customer_id").reset_index().to_csv(
-        KEY / "khata_outstanding_end.csv", index=False)
     key.to_csv(KEY / "statement_row_labels.csv", index=False)
     customers.drop(columns=["fav"]).to_csv(KEY / "customers.csv", index=False)
     truth = {

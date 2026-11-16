@@ -34,7 +34,7 @@ def route(q):
         return "forecast_revenue", {"days": 7}
     if any(w in q for w in ("menu", "hatau", "remove", "push", "star")):
         return "menu_matrix", {}
-    if any(w in q for w in ("customer", "regular", "grahak", "khata", "udhaar")):
+    if any(w in q for w in ("customer", "regular", "grahak", "naye")):
         return "customer_insights", {}
     if any(w in q for w in ("rush", "busy", "bheed", "time", "ghante", "hour")):
         return "hourly_profile", {"days": 28}
@@ -86,7 +86,7 @@ def render(tool, r):
     if tool == "customer_insights":
         return (f"{r['unique_upi_customers']} UPI customers, {r['regulars']} regulars "
                 f"({r['regulars_share_of_upi_sales_pct']}% of UPI sales). {len(r['regulars_not_seen_21d'])} regulars "
-                f"3 hafte se nahi aaye. Khata outstanding approx ₹{r['khata_total_est_outstanding']}.\n"
+                f"3 hafte se nahi aaye. Pichle 30 din me {r['new_customers_last_30d']} naye customers.\n"
                 "Suggestion: jo regulars nahi aa rahe unhe agli baar free cutting chai do.")
     if tool == "hourly_profile":
         return (f"Rush: {', '.join(r['busiest_hours'])}. Slow: {', '.join(r['slowest_hours'])}.\n"

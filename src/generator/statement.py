@@ -42,7 +42,7 @@ VENDORS = {  # fictional suppliers: (display, vpa, tag)
 class StatementWriter:
     def __init__(self, sim_out, customers, rng):
         self.o, self.oi = sim_out["orders"], sim_out["order_items"]
-        self.daily, self.khata, self.deferred = sim_out["daily"], sim_out["khata"], sim_out["deferred"]
+        self.daily, self.deferred = sim_out["daily"], sim_out["deferred"]
         self.cust = customers.set_index("customer_id")
         self.rng = rng
         self.rows, self.key = [], []
@@ -127,11 +127,7 @@ class StatementWriter:
                          r.order_id, r.customer_id)
         for r in self.deferred.itertuples():
             self.receipt(r.datetime, r.customer_id, float(r.amount), "sale_deferred", r.order_id,
-                         rng.choice([None, None, "kal wala", "baki"]))
-        if len(self.khata):
-            for r in self.khata[self.khata["mode"] == "upi"].itertuples():
-                self.receipt(r.datetime, r.customer_id, float(r.amount), "khata_settlement", None,
-                             rng.choice([None, None, "khata", "hisaab", "udhaar", f"{r.datetime:%b} khata"]))
+                         rng.choice([None, None, "kal wala", "UPI down tha"]))
 
     # ---------------------------------------------------------------- owner side
     def build_owner(self):

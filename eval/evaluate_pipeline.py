@@ -60,8 +60,7 @@ def main(use_owner_prior=True):
 
     # ---------------------------------------------------------------- 2 revenue
     h("2. Revenue reconstruction (UPI only -> all modes)")
-    true_rev = daily.upi_sales + daily.cash_sales + orders[orders["mode"] == "khata"].groupby("date").amount.sum(
-    ).reindex(daily.index).fillna(0)
+    true_rev = daily.upi_sales + daily.cash_sales
     est = A.daily.revenue_est.reindex(daily.index).fillna(0)
     lo = A.daily.revenue_high.reindex(daily.index).fillna(0)   # note: high cash share -> more revenue
     hi = A.daily.revenue_low.reindex(daily.index).fillna(0)
@@ -251,27 +250,6 @@ def main(use_owner_prior=True):
         p(f"  - Detected: {s_['slot']} sales {s_['change_pct']}% since {s_['since']} (t={s_['t_stat']})")
     p(f"- UPI outages: found {len(true_out & found_out)}/{len(true_out)}; "
       f"{len(found_out - true_out)} false alarms ({sorted(found_out - true_out)})")
-
-    # ---------------------------------------------------------------- 9 khata
-    h("9. Khata (credit) outstanding")
-    ko = pd.read_csv(KEY / "khata_outstanding_end.csv")
-    ci = A.customer_insights()
-    est_total = ci["khata_total_est_outstanding"]
-    cust = pd.read_csv(KEY / "customers.csv")
-    cust["active_to"] = pd.to_datetime(cust.active_to).dt.date
-    ks = pd.read_csv(KEY / "khata_settlements.csv")
-    upi_settlers = set(ks[ks["mode"] == "upi"].customer_id)
-    active = set(cust[cust.active_to >= A.last].customer_id)
-    true_all = float(ko.outstanding.sum())
-    gone = float(ko[~ko.customer_id.isin(active)].outstanding.sum())
-    true_active_upi = float(ko[ko.customer_id.isin(active & upi_settlers)].outstanding.sum())
-    M["khata"] = dict(estimated=est_total, true_all=true_all, true_bad_debt_graduated=gone,
-                      true_active_upi_settlers=true_active_upi)
-    p(f"- True outstanding at year end: ₹{true_all:,.0f}, of which ₹{gone:,.0f} is owed by students who "
-      f"graduated (likely bad debt, invisible in UPI data)")
-    p(f"- Active customers who settle by UPI owe ₹{true_active_upi:,.0f}; pipeline estimate ₹{est_total:,}")
-    p("- The estimate only sees settlements, not the credit given, so it is a rough lower bound. "
-      "A simple khata book in the app would make this exact.")
 
     out = ROOT / "eval"
     (out / "metrics.json").write_text(json.dumps(M, indent=2, default=str))

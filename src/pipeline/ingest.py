@@ -2,7 +2,6 @@
 
 Classes
   sale               customer payment for food
-  khata_settlement   lump-sum repayment of credit (udhaar)
   duplicate          repeat of a payment that was refunded
   refund             money returned to a customer
   personal_received  money from family/friends (not revenue)
@@ -16,7 +15,6 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 
-KHATA_WORDS = re.compile(r"khata|hisaab|hisab|udhaar|udhar|baki|kal wala", re.I)
 SUPPLIER_WORDS = re.compile(r"dairy|gas|kirana|bakery|distribut|kulhad|licen|wholesale|traders|store", re.I)
 
 
@@ -68,16 +66,12 @@ def classify_incoming(df: pd.DataFrame, cls: pd.Series) -> pd.Series:
             cls[i] = "duplicate"
     cand = inc & (cls == "unclassified")
     amt = df.amount
-    # payer-level features
-    g = df[cand].groupby("vpa")["amount"]
-    n_pay, med = g.transform("size"), g.transform("median")
+    # payer-level feature: how often this UPI ID pays us
+    n_pay = df[cand].groupby("vpa")["amount"].transform("size")
     df_n = pd.Series(0, index=df.index); df_n[cand] = n_pay
-    df_med = pd.Series(0.0, index=df.index); df_med[cand] = med
-    remark_khata = df.remarks.str.contains(KHATA_WORDS)
-    khata_payer = (df_n >= 2) & (df_med >= 180)
+    # big round amounts from rare payers = money from family/friends, not food
     big_round = (amt >= 1000) & (amt % 500 == 0)
     cls[cand & big_round & (df_n <= 3)] = "personal_received"
-    cls[cand & (cls == "unclassified") & (remark_khata | (khata_payer & (amt >= 120)) | (amt >= 450))] = "khata_settlement"
     cls[cand & (cls == "unclassified")] = "sale"
     return cls
 

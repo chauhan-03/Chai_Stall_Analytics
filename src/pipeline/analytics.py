@@ -90,15 +90,12 @@ class StallAnalytics:
         d = cal.set_index("date")
         d["upi_sales"] = s.groupby("business_date")["net_amount"].sum().reindex(d.index).fillna(0)
         d["n_txn"] = s.groupby("business_date").size().reindex(d.index).fillna(0)
-        kh = tx[tx["class"] == "khata_settlement"]
-        d["khata_received"] = kh.groupby("business_date")["amount"].sum().reindex(d.index).fillna(0)
-        self.khata_ratio = float(d.khata_received.sum() / max(d.upi_sales.sum(), 1))
         d["closed"] = d["closed"] | (d["n_txn"] == 0)
-        self.scale = (1 / (1 - self.cash_share)) * (1 + self.khata_ratio)
+        self.scale = 1 / (1 - self.cash_share)
         lo, hi = self.cash_range
-        d["revenue_est"] = d.upi_sales / (1 - self.cash_share) + d.upi_sales * self.khata_ratio
-        d["revenue_low"] = d.upi_sales / (1 - lo) + d.upi_sales * self.khata_ratio
-        d["revenue_high"] = d.upi_sales / (1 - hi) + d.upi_sales * self.khata_ratio
+        d["revenue_est"] = d.upi_sales / (1 - self.cash_share)
+        d["revenue_low"] = d.upi_sales / (1 - lo)
+        d["revenue_high"] = d.upi_sales / (1 - hi)
         if self.weather is not None:
             wf = weather_frame(list(d.index), self.weather).set_index("date")
             d = d.join(wf)
@@ -158,7 +155,6 @@ class StallAnalytics:
             "estimated_total_revenue": _r(d.revenue_est.sum()),
             "estimated_total_revenue_range": [_r(d.revenue_high.sum()), _r(d.revenue_low.sum())],
             "cash_share_assumed": self.cash_share, "cash_share_range": list(self.cash_range),
-            "khata_settlements_total": _r(d.khata_received.sum()),
             "avg_daily_revenue_class_days": _r(cls.revenue_est.mean()),
             "avg_upi_payments_per_class_day": _r(cls.n_txn.mean()),
             "avg_upi_ticket": _r(self.sales.net_amount.mean(), 1),
@@ -179,7 +175,7 @@ class StallAnalytics:
             rows.append(dict(item=self.menu.names[iid], item_id=iid, units=_r(q), per_day=_r(q / n_days, 1),
                              revenue=_r(q * p), share_units=_r(q / u.sum() * 100, 1)))
         return {"period": f"{a} to {b}", "open_days": n_days, "items": rows[:top] if top else rows,
-                "note": "Units are estimated from UPI payment amounts and scaled up for cash and khata; "
+                "note": "Units are estimated from UPI payment amounts and scaled up for cash; "
                         "treat individual numbers as +/- 25%."}
 
     def hourly_profile(self, start=None, end=None, days=60, phase=None):
@@ -271,7 +267,7 @@ class StallAnalytics:
         lo, hi = self.cash_range
         rows = []
         for r, fr in zip(p.itertuples(), f.itertuples()):
-            k = lambda v, c: v / (1 - c) + v * self.khata_ratio
+            k = lambda v, c: v / (1 - c)
             rows.append(dict(date=str(r.date), weekday=pd.Timestamp(r.date).day_name(), period=fr.period_label,
                              upi_p50=_r(r.p50), revenue_p10=_r(k(r.p10, lo)), revenue_p50=_r(k(r.p50, self.cash_share)),
                              revenue_p90=_r(k(r.p90, hi)), closed=bool(fr.closed),
@@ -566,18 +562,6 @@ class StallAnalytics:
         in_term = ph.get(as_of, "classes") in ("classes", "midsem", "fest")
         churn = g[regular & (g.days_since >= 21)] if in_term else g.iloc[0:0]
         new = g[g["first"] >= as_of - timedelta(days=30)]
-        kh = self.tx[(self.tx["class"] == "khata_settlement") & (self.tx.business_date <= as_of)]
-        khata = []
-        for v, k in kh.groupby("vpa"):
-            if len(k) < 2:
-                continue
-            span = (k.business_date.max() - k.business_date.min()).days
-            rate = k.amount.iloc[1:].sum() / max(span, 1)
-            since = (as_of - k.business_date.max()).days
-            khata.append(dict(name=k.counterparty.iloc[-1], settlements=len(k), avg_settlement=_r(k.amount.mean()),
-                              every_days=_r(span / (len(k) - 1)), last_paid=str(k.business_date.max()),
-                              days_since_payment=since, est_outstanding=_r(rate * since)))
-        khata.sort(key=lambda x: -(x["est_outstanding"] or 0))
         fmt = lambda df: [dict(name=r["name"], upi_id=vpa, visits=int(r.visits), spend=_r(r.spend), last_seen=str(r["last"]),
                                visits_per_week=_r(r.visits_per_week, 1)) for vpa, r in df.iterrows()]
         top_df = g.sort_values("spend", ascending=False).head(top)
@@ -586,8 +570,6 @@ class StallAnalytics:
                 "regulars_share_of_upi_sales_pct": _r(g[regular].spend.sum() / g.spend.sum() * 100, 1),
                 "top_customers": fmt(top_df), "new_customers_last_30d": int(len(new)),
                 "regulars_not_seen_21d": fmt(churn.sort_values("spend", ascending=False).head(top)),
-                "khata_accounts": khata[:top],
-                "khata_total_est_outstanding": _r(sum(k["est_outstanding"] or 0 for k in khata)),
                 "note": "Only UPI customers are visible. Customers are identified by UPI ID."}
 
     # ------------------------------------------------------------------ daily brief

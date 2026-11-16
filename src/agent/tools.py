@@ -6,7 +6,7 @@ DATE = {"type": "string", "description": "Date as YYYY-MM-DD"}
 TOOLS = [
     {"name": "overview",
      "description": "Headline numbers for the whole statement: period covered, UPI sales, estimated total "
-                    "revenue with cash added back, average daily revenue on class days, khata received.",
+                    "revenue with cash added back, average daily revenue on class days.",
      "input_schema": {"type": "object", "properties": {}}},
     {"name": "sales_mix",
      "description": "Estimated units and revenue per menu item over a period (default last 30 days). "
@@ -67,8 +67,7 @@ TOOLS = [
      "description": "Days/hours where UPI payments stopped during normally busy times (likely UPI downtime).",
      "input_schema": {"type": "object", "properties": {}}},
     {"name": "customer_insights",
-     "description": "Regular customers, top spenders, regulars who stopped coming, new customers, and "
-                    "khata (credit) accounts with estimated outstanding.",
+     "description": "Regular customers, top spenders, regulars who stopped coming, and new customers.",
      "input_schema": {"type": "object", "properties": {}}},
     {"name": "daily_brief",
      "description": "Tomorrow's brief: revenue forecast, rush hours, prep list, top items and alerts.",

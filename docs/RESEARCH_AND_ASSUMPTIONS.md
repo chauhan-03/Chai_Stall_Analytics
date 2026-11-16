@@ -89,7 +89,6 @@ approximate. Fog in late Dec – Jan is assumed (A).
 | Launch | Cold Coffee from 15 Mar 2026 |
 | Batches & stockouts | owner preps fried snacks/poha/lassi by a "last 2 same weekdays x1.22" habit; sell-outs lose or substitute sales |
 | Competitor | night canteen opens 21 Sep 2026: night demand x0.72, late x0.65 |
-| Khata | regular staff and some students run credit; repay in lumps (UPI 80%) |
 | Payment noise | split bills, duplicate payments + refunds, typo payments (₹450 for ₹45) + partial refund, deferred payments after outages, customer remarks in ~5% of payments |
 | Owner's own rows | dairy, gas, kirana, bakery, distributor, kulhad supplier, licence fee, electricity, helper wages, family transfers, recharges, weekly self-transfers, money from relatives, cashback |
 

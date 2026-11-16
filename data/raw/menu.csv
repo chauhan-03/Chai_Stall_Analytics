@@ -1,27 +1,27 @@
 item_id,item,category,price,cost,made_in_batches,owner_estimate_daily
-CUT_CHAI,Cutting Chai,beverage_hot,10,4.7,False,60
-MASALA_CHAI,Masala Chai,beverage_hot,15,6.27,False,50
-ADRAK_CHAI,Adrak Elaichi Chai,beverage_hot,20,7.8,False,15
-KULHAD_CHAI,Kulhad Chai,beverage_hot,30,14.34,False,15
-HOT_COFFEE,Hot Coffee,beverage_hot,25,9.9,False,15
-COLD_COFFEE,Cold Coffee,beverage_cold,50,20.67,False,20
-LASSI,Sweet Lassi,beverage_cold,40,16.0,True,6
-SHIKANJI,Nimbu Shikanji,beverage_cold,20,6.0,False,15
-COLD_DRINK,Cold Drink 250ml,packaged,20,15.0,False,20
-WATER,Water Bottle 1L,packaged,20,13.0,False,7
-SAMOSA,Samosa,snack_fried,15,6.0,True,40
-KACHORI,Pyaaz Kachori,snack_fried,25,10.0,True,20
-MIRCHI_BADA,Mirchi Bada,snack_fried,20,8.0,True,7
+CUT_CHAI,Cutting Chai,beverage_hot,10,4.7,False,35
+MASALA_CHAI,Masala Chai,beverage_hot,15,6.27,False,55
+ADRAK_CHAI,Adrak Elaichi Chai,beverage_hot,20,7.8,False,20
+KULHAD_CHAI,Kulhad Chai,beverage_hot,30,14.34,False,6
+HOT_COFFEE,Hot Coffee,beverage_hot,25,9.9,False,30
+COLD_COFFEE,Cold Coffee,beverage_cold,50,20.67,False,10
+LASSI,Sweet Lassi,beverage_cold,40,16.0,True,8
+SHIKANJI,Nimbu Shikanji,beverage_cold,20,6.0,False,10
+COLD_DRINK,Cold Drink 250ml,packaged,20,15.0,False,15
+WATER,Water Bottle 1L,packaged,20,13.0,False,15
+SAMOSA,Samosa,snack_fried,15,6.0,True,50
+KACHORI,Pyaaz Kachori,snack_fried,25,10.0,True,35
+MIRCHI_BADA,Mirchi Bada,snack_fried,20,8.0,True,10
 BREAD_PAKODA,Bread Pakoda,snack_fried,25,10.0,True,15
-POHA,Poha,breakfast,30,11.0,True,7
-PARATHA,Aloo Paratha,breakfast,40,15.0,False,9
-BUN_MASKA,Bun Maska,snack,25,9.0,False,20
+POHA,Poha,breakfast,30,11.0,True,10
+PARATHA,Aloo Paratha,breakfast,40,15.0,False,25
+BUN_MASKA,Bun Maska,snack,25,9.0,False,25
 MAGGI,Plain Maggi,maggi,50,16.0,False,20
-MASALA_MAGGI,Masala Veg Maggi,maggi,60,22.0,False,25
+MASALA_MAGGI,Masala Veg Maggi,maggi,60,22.0,False,10
 CHEESE_MAGGI,Cheese Maggi,maggi,70,32.0,False,7
-VEG_SANDWICH,Veg Sandwich,sandwich,40,16.0,False,15
-GRILL_SANDWICH,Grilled Cheese Sandwich,sandwich,70,30.0,False,5
-BREAD_OMELETTE,Bread Omelette,egg,50,20.0,False,15
-BISCUIT,Biscuit Packet,packaged,10,8.0,False,8
-CHIPS,Chips Packet,packaged,20,16.0,False,7
-COMBO_CS,Chai Samosa Combo,combo,25,12.27,True,5
+VEG_SANDWICH,Veg Sandwich,sandwich,40,16.0,False,10
+GRILL_SANDWICH,Grilled Cheese Sandwich,sandwich,70,30.0,False,10
+BREAD_OMELETTE,Bread Omelette,egg,50,20.0,False,10
+BISCUIT,Biscuit Packet,packaged,10,8.0,False,15
+CHIPS,Chips Packet,packaged,20,16.0,False,9
+COMBO_CS,Chai Samosa Combo,combo,25,12.27,True,6

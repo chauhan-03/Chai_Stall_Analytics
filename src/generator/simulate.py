@@ -5,7 +5,7 @@ Real-world effects modelled (see docs/RESEARCH_AND_ASSUMPTIONS.md):
   weather (heat, cold, rain, fog), weekday rhythm, item complementarity
   (true combos), price elasticity, launches, a competitor opening,
   limited batches -> stockouts -> substitution or lost sales,
-  cash vs UPI (falling cash share), khata credit + lump settlements,
+  cash vs UPI (falling cash share),
   UPI outages, group orders, split bills, duplicate/typo payments.
 """
 from collections import defaultdict
@@ -77,9 +77,7 @@ class Simulator:
         self.fav = np.vstack(self.cust["fav"].values)
         self.weather = weather.set_index("date")
         self.orders, self.order_items, self.daily = [], [], []
-        self.khata_events, self.deferred = [], []
-        self.khata_bal = defaultdict(float)
-        self.khata_last = {}
+        self.deferred = []
         self.sold_hist = defaultdict(list)   # item -> [(date, sold)]
         self.oid = 0
         self.base_pop = np.array([it["base_pop"] for it in self.items])
@@ -342,15 +340,12 @@ class Simulator:
         hour = t.hour + t.minute / 60 + (24 if t.date() > d else 0)
         outage = any(o[0] == d and o[1] <= hour < o[2] for o in C.UPI_OUTAGES)
         frac_year = (d - C.START).days / 365
-        if kind == "C" and cu.khata.values[c] and (cu.type.values[c] == "staff" or rng.random() < 0.85):
-            mode = "khata"
-        else:
-            cash_p = (cu.cash_p.values[c] if kind == "C" else 0.42) * (1 - C.CASH_TREND * frac_year)
-            if amount <= 15: cash_p = min(1, cash_p + 0.15)
-            mode = "cash" if rng.random() < cash_p else "upi"
-            if mode == "upi" and outage:
-                r = rng.random()
-                mode = "cash" if r < 0.6 else ("upi_deferred" if r < 0.85 and kind == "C" else "lost")
+        cash_p = (cu.cash_p.values[c] if kind == "C" else 0.42) * (1 - C.CASH_TREND * frac_year)
+        if amount <= 15: cash_p = min(1, cash_p + 0.15)
+        mode = "cash" if rng.random() < cash_p else "upi"
+        if mode == "upi" and outage:
+            r = rng.random()
+            mode = "cash" if r < 0.6 else ("upi_deferred" if r < 0.85 and kind == "C" else "lost")
         self.oid += 1
         oid = f"O{self.oid:06d}"
         cid = cu.customer_id.values[c] if kind == "C" else f"OUT{self.oid:06d}"
@@ -361,10 +356,6 @@ class Simulator:
         for iid, q in basket.items():
             self.order_items.append(dict(order_id=oid, item_id=iid, qty=q,
                                          unit_price=price_on(iid, d, self.by_id)))
-        if mode == "khata":
-            self.khata_bal[cid] += amount
-            self.maybe_settle(c, cid, t)
-            return 0, 0
         if mode == "upi_deferred":
             later = t + timedelta(hours=float(rng.uniform(1.5, 20)))
             self.deferred.append(dict(order_id=oid, datetime=later, customer_id=cid, amount=amount))
@@ -372,21 +363,6 @@ class Simulator:
         if mode == "lost":
             return 0, 0
         return (amount, 0) if mode == "upi" else (0, amount)
-
-    def maybe_settle(self, c, cid, t):
-        rng = self.rng
-        last = self.khata_last.get(cid, t - timedelta(days=int(rng.integers(0, 20))))
-        staff = self.cust.type.values[c] == "staff"
-        due = (t.day <= 7 and (t - last).days >= 20) if staff else ((t - last).days >= rng.integers(12, 32))
-        if due and self.khata_bal[cid] > 0:
-            bal = self.khata_bal[cid]
-            amt = bal if rng.random() < 0.7 else max(50, int(bal // 100) * 100)
-            mode = "upi" if rng.random() < 0.8 else "cash"
-            st = t + timedelta(minutes=int(rng.integers(1, 5)))
-            self.khata_events.append(dict(customer_id=cid, datetime=st, amount=float(amt), mode=mode,
-                                          balance_before=bal))
-            self.khata_bal[cid] -= amt
-            self.khata_last[cid] = t
 
     def _record_day(self, d, phase, label, w, closed, stock0, demand, sold, lost, upi_rev, cash_rev):
         row = dict(date=d, phase=phase, period_label=label, closed=closed, tmax=w.tmax, tmin=w.tmin,
@@ -404,6 +380,4 @@ class Simulator:
 
     def results(self):
         return dict(orders=pd.DataFrame(self.orders), order_items=pd.DataFrame(self.order_items),
-                    daily=pd.DataFrame(self.daily), khata=pd.DataFrame(self.khata_events),
-                    deferred=pd.DataFrame(self.deferred),
-                    khata_outstanding=pd.Series(self.khata_bal).rename("outstanding"))
+                    daily=pd.DataFrame(self.daily), deferred=pd.DataFrame(self.deferred))

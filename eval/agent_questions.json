@@ -26,7 +26,7 @@
   {"q": "Exam ke time raat ko kya zyada bikta hai?", "expect": ["hourly_profile", "sales_mix"]},
   {"q": "Mere regular customers kaun hain?", "expect": ["customer_insights"]},
   {"q": "Kaun se regular aana band ho gaye?", "expect": ["customer_insights"]},
-  {"q": "Khata me kitna paisa baaki hai?", "expect": ["customer_insights"]},
+  {"q": "Pichle mahine kitne naye customers aaye?", "expect": ["customer_insights"]},
   {"q": "Kya kabhi UPI band hua tha?", "expect": ["detect_outages"]},
   {"q": "Saal bhar me total kitni kamai hui?", "expect": ["overview"]},
   {"q": "Cash kitna hota hoga?", "expect": ["overview"]},

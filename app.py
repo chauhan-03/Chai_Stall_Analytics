@@ -96,7 +96,7 @@ with tabs[1]:
                            title=f"Estimated units per day (last {days} days)").update_yaxes(autorange="reversed"),
                     width="stretch")
     c2.dataframe(mix[["item", "units", "per_day", "revenue", "share_units"]], height=650, width="stretch")
-    st.caption("Estimated from UPI amounts (which items add up to each payment), scaled up for cash and khata. "
+    st.caption("Estimated from UPI amounts (which items add up to each payment), scaled up for cash. "
                "Treat single items as ±25%.")
     pick = st.multiselect("Items over time", [A.menu.names[i] for i in A.ids], ["Samosa", "Plain Maggi", "Cold Coffee"])
     if pick:
@@ -175,10 +175,9 @@ with tabs[6]:
     c[0].metric("UPI customers", ci["unique_upi_customers"])
     c[1].metric("Regulars", ci["regulars"])
     c[2].metric("Regulars' share of UPI sales", f"{ci['regulars_share_of_upi_sales_pct']}%")
-    c[3].metric("Khata outstanding (est.)", f"₹{ci['khata_total_est_outstanding']:,}")
+    c[3].metric("New customers (30 days)", ci["new_customers_last_30d"])
     st.subheader("Top customers"); st.dataframe(pd.DataFrame(ci["top_customers"]), width="stretch")
     st.subheader("Regulars not seen for 3+ weeks"); st.dataframe(pd.DataFrame(ci["regulars_not_seen_21d"]), width="stretch")
-    st.subheader("Khata accounts"); st.dataframe(pd.DataFrame(ci["khata_accounts"]), width="stretch")
     st.caption(ci["note"])
 
 # ------------------------------------------------------------------ diagnostics
