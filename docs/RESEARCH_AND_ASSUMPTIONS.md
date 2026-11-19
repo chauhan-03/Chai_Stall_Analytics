@@ -77,18 +77,19 @@ approximate. Fog in late Dec – Jan is assumed (A).
 | Effect | How |
 |---|---|
 | Habitual customers | 2,400 students + 140 staff; lognormal visit rates (a few heavy regulars) |
-| Chronotypes | early birds, normal, night owls; exam weeks push demand past 22:00 |
+| Opening hours | 09:00–19:00 daily; every statement row falls inside these hours |
+| Chronotypes | early birds, normal, night owls (come late in the day); exam weeks and fests push demand into 17:00–19:00 |
 | Cohort churn | 22% of students graduate after May compre; 26% freshers join in August |
 | Breaks | only 12% (winter) / 20% (summer) of students stay; staff mostly stay |
 | Fests | outsider footfall x7, bigger groups, more cold drinks and sandwiches |
 | Weather | heat raises cold drinks, cuts hot items and afternoon footfall; rain lifts fried snacks and chai; fog lifts morning chai |
-| Complements | fried snack → chai, poha/omelette → chai, sandwich → cold coffee, maggi → coffee late at night |
+| Complements | fried snack → chai, poha/omelette → chai, sandwich → cold coffee, maggi → coffee after 17:00 |
 | Combo SKU | Chai Samosa Combo ₹25 from 1 Feb 2026 replaces 75% of masala chai + samosa pairs |
 | Price elasticity | maggi 1.4, others 0.8 (true values, for scoring the estimator) |
 | Price changes | Kulhad ₹25→30 (15 Jan), Maggi ₹40→50 and Masala Maggi ₹55→60 (1 Sep) |
 | Launch | Cold Coffee from 15 Mar 2026 |
 | Batches & stockouts | owner preps fried snacks/poha/lassi by a "last 2 same weekdays x1.22" habit; sell-outs lose or substitute sales |
-| Competitor | night canteen opens 21 Sep 2026: night demand x0.72, late x0.65 |
+| Competitor | second tea stall opens nearby 21 Sep 2026: evening (16:00–19:00) demand x0.72, rest of day x0.95 |
 | Payment noise | split bills, duplicate payments + refunds, typo payments (₹450 for ₹45) + partial refund, deferred payments after outages, customer remarks in ~5% of payments |
 | Owner's own rows | dairy, gas, kirana, bakery, distributor, kulhad supplier, licence fee, electricity, helper wages, family transfers, recharges, weekly self-transfers, money from relatives, cashback |
 

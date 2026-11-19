@@ -165,7 +165,7 @@ with tabs[5]:
     st.write(f"Elasticity {sim['elasticity_used']} (range {sim['elasticity_range']}), from {sim['source']}.")
     st.caption(sim["note"])
     st.subheader("Extra opening hour")
-    h = st.slider("Hour", 0, 23, 6)
+    h = st.slider("Hour", 0, 23, 8)
     st.json(A.simulate_hours(h))
 
 # ------------------------------------------------------------------ customers

@@ -245,7 +245,7 @@ def main(use_owner_prior=True):
     found_out = {o["date"] for o in outs}
     M["diagnostics"] = dict(shifts=sh, outage_recall=len(true_out & found_out) / len(true_out),
                             outage_precision=len(true_out & found_out) / max(len(found_out), 1))
-    p(f"- Competitor truly opened {truth['competitor_open']} (night demand x{truth['competitor_effect']['night']}).")
+    p(f"- Competitor truly opened {truth['competitor_open']} (evening demand x{truth['competitor_effect']['evening']}).")
     for s_ in sh:
         p(f"  - Detected: {s_['slot']} sales {s_['change_pct']}% since {s_['since']} (t={s_['t_stat']})")
     p(f"- UPI outages: found {len(true_out & found_out)}/{len(true_out)}; "

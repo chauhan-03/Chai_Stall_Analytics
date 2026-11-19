@@ -188,7 +188,8 @@ class StallAnalytics:
         g = s.groupby("hour").agg(payments=("net_amount", "size"), upi_sales=("net_amount", "sum"))
         g = g / n_days
         top = g.payments.sort_values(ascending=False).head(3).index.tolist()
-        slow = g[(g.index >= 7) & (g.index <= 23)].payments.sort_values().head(3).index.tolist()
+        trading = g[g.payments >= 0.05 * g.payments.max()]      # ignore stray off-hours payments
+        slow = trading.payments.sort_values().head(3).index.tolist()
         fmt = lambda h: f"{h % 24:02d}:00"
         return {"period": f"{a} to {b}", "phase": phase or "all",
                 "per_hour": [dict(hour=fmt(h), upi_payments_per_day=_r(r.payments, 1),
@@ -481,6 +482,8 @@ class StallAnalytics:
         drivers.append(("payments per day", chg(sa["payments_per_day"], sb["payments_per_day"])))
         drivers.append(("average ticket", chg(sa["avg_ticket"], sb["avg_ticket"])))
         for sl in SLOT_HOURS:
+            if not (sa["slot_rev"][sl] or sb["slot_rev"][sl]):
+                continue                                         # stall not open in this slot
             drivers.append((f"{sl} sales", chg(sa["slot_rev"][sl], sb["slot_rev"][sl])))
         new = len(sb["payers"] - sa["payers"]); lost = len(sa["payers"] - sb["payers"])
         notes = []

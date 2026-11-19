@@ -10,6 +10,7 @@ import pandas as pd
 from openpyxl import Workbook
 from openpyxl.styles import Font
 from . import config as C
+from .simulate import before_close
 
 COLS = ["Date", "Time", "Transaction Details", "Other Transaction Details (UPI ID or A/c No)",
         "Your Account", "Amount", "UPI Ref No.", "Order ID", "Remarks", "Tags", "Comment"]
@@ -112,17 +113,17 @@ class StatementWriter:
             if rng.random() < 0.0008 and amt < 100:
                 self.receipt(r.datetime, r.customer_id, amt * 10, "sale_typo", r.order_id, remark)
                 name, vpa, app = self.payer(r.customer_id)
-                self.add(r.datetime + timedelta(minutes=int(rng.integers(2, 30))),
+                self.add(before_close(r.datetime + timedelta(minutes=int(rng.integers(2, 30)))),
                          f"Money sent to {name}", f"{vpa} on {app}", -amt * 9, "#💵 Money Transfer",
                          None, None, "refund", r.order_id, r.customer_id)
                 continue
             self.receipt(r.datetime, r.customer_id, amt, "sale", r.order_id, remark)
             # duplicate payment (network retry) -> refunded later
             if rng.random() < 0.002:
-                t2 = r.datetime + timedelta(seconds=int(rng.integers(20, 180)))
+                t2 = before_close(r.datetime + timedelta(seconds=int(rng.integers(20, 180))))
                 self.receipt(t2, r.customer_id, amt, "duplicate", r.order_id)
                 name, vpa, app = self.payer(r.customer_id)
-                self.add(t2 + timedelta(minutes=int(rng.integers(5, 240))), f"Money sent to {name}",
+                self.add(before_close(t2 + timedelta(minutes=int(rng.integers(5, 240)))), f"Money sent to {name}",
                          f"{vpa} on {app}", -amt, "#💵 Money Transfer", None, None, "refund",
                          r.order_id, r.customer_id)
         for r in self.deferred.itertuples():
@@ -169,9 +170,9 @@ class StatementWriter:
                             [None, "Verified Paytm Merchant", "UPI"]), kind=f"expense_{vendor}")
                     acc, last = 0.0, day
 
-        pay_every("milk_cost", "dairy", 7, 0.9, (7, 10))
+        pay_every("milk_cost", "dairy", 7, 0.9, (9, 10.5))
         pay_every("kirana_cost", "kirana", 4, 0.75, (10, 13))
-        pay_every("bakery_cost", "bakery", 3, 0.7, (6.5, 9))
+        pay_every("bakery_cost", "bakery", 3, 0.7, (9, 10))
         pay_every("packaged_cost", "packaged", 6, 0.85, (11, 15))
         pay_every("kulhad_cost", "kulhad", 14, 0.8, (9, 12))
         # gas: 19 kg commercial cylinder ~ ₹1,750-1,850, usage proportional to cooking volume
@@ -191,7 +192,7 @@ class StatementWriter:
             t = m + timedelta(days=int(rng.integers(1, 6)), hours=float(rng.uniform(10, 18)))
             self.add(t, f"Paid to {VENDORS['licence'][0]}", VENDORS["licence"][1], -6500,
                      VENDORS["licence"][2], "Monthly licence", kind="expense_licence")
-            t = m + timedelta(days=int(rng.integers(8, 15)), hours=float(rng.uniform(10, 20)))
+            t = m + timedelta(days=int(rng.integers(8, 15)), hours=float(rng.uniform(10, 18.9)))
             summer = m.month in (6, 7)
             self.add(t, "Bill Payment for Electricity", "JVVNL - K No ******8812",
                      -float(rng.integers(1100, 1600) if summer else rng.integers(1700, 2600)),
@@ -200,32 +201,32 @@ class StatementWriter:
                                    ("Sonu Prajapat", 8000, "sonuprajapat98@oksbi on Google Pay")):
                 if helper.startswith("Sonu") and m.month in (6, 7):
                     continue  # second helper goes home in summer
-                t = m + timedelta(days=int(rng.integers(0, 4)), hours=float(rng.uniform(20, 23)))
+                t = m + timedelta(days=int(rng.integers(0, 4)), hours=float(rng.uniform(17.5, 18.9)))
                 self.add(t, f"Money sent to {helper}", v, -sal, "#💵 Money Transfer", None,
                          kind="expense_wages")
-            t = m + timedelta(days=int(rng.integers(10, 20)), hours=float(rng.uniform(9, 22)))
+            t = m + timedelta(days=int(rng.integers(10, 20)), hours=float(rng.uniform(9, 18.9)))
             self.add(t, f"Money sent to Kamla Devi", "******7720@ptsbi on Paytm",
                      -float(rng.choice([8000, 10000, 12000])), "#💵 Money Transfer", None,
                      kind="personal_family")
-            t = m + timedelta(days=int(rng.integers(0, 27)), hours=float(rng.uniform(8, 22)))
+            t = m + timedelta(days=int(rng.integers(0, 27)), hours=float(rng.uniform(9, 18.9)))
             self.add(t, "Recharge of Mobile ******4417", "Prepaid recharge", -349.0,
                      "#🧾 Bill Payments", "Recharge successful", kind="personal_recharge")
         # weekly sweep of balance to the other bank (self transfer)
         weekly = d.set_index("date")["upi_sales"].resample("W-SUN").sum()
         for wk, val in weekly.items():
             if val > 3000:
-                t = wk + timedelta(hours=float(rng.uniform(22, 23.9)))
+                t = wk + timedelta(hours=float(rng.uniform(18, 18.95)))
                 amt = int(val * rng.uniform(0.35, 0.6) / 1000) * 1000
                 self.add(t, f"Transferred to Self, {C.STALL['second_account']}", "******4417@ptsbi on Paytm",
                          -amt, "#💵 Self Transfer", None, kind="self_transfer")
         # non-sale money received: relatives, a loan repayment, cashback
         for when, who, amt in ((pd.Timestamp(2026, 1, 14, 16, 20), "Mahesh Saini", 5000),
                                (pd.Timestamp(2026, 6, 3, 11, 5), "Mahesh Saini", 2000),
-                               (pd.Timestamp(2026, 8, 20, 19, 40), "Raju Saini", 3500)):
+                               (pd.Timestamp(2026, 8, 20, 18, 40), "Raju Saini", 3500)):
             self.add(when.to_pydatetime(), f"Received from {who}", f"******{rng.integers(1000, 9999)}@ybl on PhonePe",
                      amt, "#💵 Money Received", None, kind="personal_received")
         for _ in range(4):
-            t = pd.Timestamp(C.START) + timedelta(days=int(rng.integers(0, 360)), hours=float(rng.uniform(9, 21)))
+            t = pd.Timestamp(C.START) + timedelta(days=int(rng.integers(0, 360)), hours=float(rng.uniform(9, 18.9)))
             self.add(t.to_pydatetime(), "Cashback Received", "Paytm Cashback", float(rng.integers(1, 25)),
                      "#💰 Cashback", "Cashback", kind="cashback")
 

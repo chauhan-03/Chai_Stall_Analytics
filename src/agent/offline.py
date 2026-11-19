@@ -76,7 +76,7 @@ def render(tool, r):
         s = r["shifts"][0]
         return (f"{s['slot']} ({s['hours']}) sales {s['change_pct']}% badle {s['since']} se "
                 f"(₹{s['before_per_day']} -> ₹{s['after_per_day']} per day UPI).\n"
-                "Suggestion: us waqt kya naya hua (competitor, timing) check karo; raat ke liye offer socho.")
+                "Suggestion: us waqt kya naya hua (competitor, timing) check karo; shaam ke liye offer socho.")
     if tool == "menu_matrix":
         by = {}
         for it in r["items"]:

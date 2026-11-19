@@ -82,7 +82,7 @@ def main():
         "combo_rules_injected": [
             "fried snack -> chai (58% normal, 35% when tmax>=36)",
             "poha / bread omelette -> chai (50%)", "paratha -> masala chai (45%)",
-            "maggi -> cold drink (hot) or coffee/chai (late night)",
+            "maggi -> cold drink (hot) or coffee (after 17:00) / chai",
             "sandwich -> cold coffee (30% after launch)",
             "chai -> bun maska / kachori (morning), samosa / mirchi bada (evening) 28%",
             "masala chai + samosa -> Chai Samosa Combo (75% after 1 Feb 2026)"],

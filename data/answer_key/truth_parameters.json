@@ -7,22 +7,21 @@
     "fried snack -> chai (58% normal, 35% when tmax>=36)",
     "poha / bread omelette -> chai (50%)",
     "paratha -> masala chai (45%)",
-    "maggi -> cold drink (hot) or coffee/chai (late night)",
+    "maggi -> cold drink (hot) or coffee (after 17:00) / chai",
     "sandwich -> cold coffee (30% after launch)",
     "chai -> bun maska / kachori (morning), samosa / mirchi bada (evening) 28%",
     "masala chai + samosa -> Chai Samosa Combo (75% after 1 Feb 2026)"
   ],
   "competitor_open": "2026-09-21",
   "competitor_effect": {
-    "night": 0.72,
-    "late": 0.65,
+    "evening": 0.72,
     "other": 0.95
   },
   "upi_outages": [
     [
       "2026-01-23",
-      18.5,
-      20.25
+      17.0,
+      18.75
     ],
     [
       "2026-04-11",
@@ -31,8 +30,8 @@
     ],
     [
       "2026-08-26",
-      19.0,
-      20.0
+      16.0,
+      17.0
     ]
   ],
   "cash_trend": 0.22

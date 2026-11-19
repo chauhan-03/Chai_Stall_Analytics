@@ -5,7 +5,7 @@ plan and pricing advice, with a Hinglish chat assistant on top.
 
 The statement has no item names, only amounts ("₹40 received from Rahul"). The pipeline infers what was
 sold, adds back cash, forecasts demand and recommends actions. A realistic synthetic stall (a campus chai
-stall at BITS Pilani, Nov 2025 – Nov 2026) with a hidden **answer key** scores every stage.
+stall at BITS Pilani, Nov 2025 – Nov 2026, open **9 AM – 7 PM**) with a hidden **answer key** scores every stage.
 
 ```
 Paytm statement (.xlsx) + menu.csv
@@ -54,29 +54,29 @@ Full details are in [eval/report.md](eval/report.md).
 |---|---|
 | Statement row classification | **100%** accuracy |
 | UPI sales recovered | 0.07% error |
-| Total revenue incl. cash (25% assumed vs 22.9% true) | +2.9% for the year; 5.8% daily WAPE |
-| Item mix (which items sold) | 28.7% WAPE on totals; popularity rank ρ = 0.76 |
-| Exact basket per payment | 24% overall, **79%** when the model is ≥60% confident |
-| Combos | **90%** of reported rules are real; finds 8 of the 10 strongest true pairs |
-| Revenue forecast (6 weeks out) | **14.1% WAPE** vs 20.1% for "same day last week"; P10–P90 covers 95% (conservative) |
-| Prep plan vs owner's habit | +₹1,035 profit on batch items in 6 weeks; waste 2,088 → 1,266 units, but more stockouts |
-| Competitor detection | **missed**: flags an evening rise from 9 Sep instead of the night drop from 21 Sep |
-| UPI outages | 3 of 3 found, 3 false alarms |
+| Total revenue incl. cash (25% assumed vs 23.0% true) | +2.7% for the year; 5.8% daily WAPE |
+| Item mix (which items sold) | 24.7% WAPE on totals; popularity rank ρ = 0.82 |
+| Exact basket per payment | 26% overall, **79%** when the model is ≥60% confident |
+| Combos | **80%** of reported rules are real; finds 6 of the 10 strongest true pairs |
+| Revenue forecast (6 weeks out) | **15.3% WAPE** vs 19.9% for "same day last week"; P10–P90 covers 95% (conservative) |
+| Prep plan vs owner's habit | +₹1,380 profit on batch items in 6 weeks; waste 2,021 → 1,319 units, but more stockouts |
+| Competitor detection | **found**: evening (4–7 PM) sales −14% from 21 Sep, the exact opening date; also flags a midday rise from 31 Aug |
+| UPI outages | 3 of 3 found, 1 false alarm |
 | Agent, offline router baseline | 58% right tool, 100% faithful numbers, 100% end with an action |
 
-Results depend on the random seed: an earlier draw of the same simulation gave item-mix error 24.8%,
-forecast 13.0%, prep gain +₹3,790 and caught the competitor. Report results over several seeds before
+Results depend on the random seed: earlier draws of the simulation gave item-mix error 24.8–28.7%,
+forecast 13.0–14.1% and prep gain +₹1,035 to +₹3,790. Report results over several seeds before
 drawing firm conclusions.
 
 ### Honest limits (what the answer key shows)
 
 - **Same-price items are hard to separate.** A ₹20 payment could be a cold drink, water, shikanji or
-  mirchi bada. Chai is under-counted (masala chai −40%, cutting chai −35%) and some items over-counted
-  (aloo paratha +172%). The owner's rough daily estimates (a menu column) used as a Bayesian prior cut the
+  mirchi bada. Chai is under-counted (masala chai −29%, cutting chai −31%) and some items over-counted
+  (grilled cheese sandwich +140%). The owner's rough daily estimates (a menu column) used as a Bayesian prior cut the
   error by about 4–5 points versus remarks alone.
 - **Prep plan under-prepares fried snacks** because of that bias and because sell-out days hide true
   demand. Fix: a one-tap "sold out at hh:mm" log.
-- **Elasticity is not recoverable here.** Maggi estimated −0.13 (true 1.4). When the new price equals a
+- **Elasticity is not recoverable here.** Maggi estimated −0.29 (true 1.4). When the new price equals a
   very common amount (₹50, ₹30), the tool flags the estimate as unreliable and falls back to a default
   instead of using it.
 - **Cash is invisible.** Revenue is a range driven by the cash-share assumption.
@@ -108,5 +108,5 @@ app.py           Streamlit app
 
 ## Re-running with different assumptions
 
-Edit `src/generator/config.py` (calendar, prices, cash trend, competitor date, outages…) and rerun
+Edit `src/generator/config.py` (opening hours, calendar, prices, cash trend, competitor date, outages…) and rerun
 steps 1–2. Everything downstream, including the answer key, updates.

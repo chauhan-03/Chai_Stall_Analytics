@@ -1,7 +1,7 @@
 """Day-by-day simulation of the stall. Produces the ground-truth order log.
 
 Real-world effects modelled (see docs/RESEARCH_AND_ASSUMPTIONS.md):
-  academic phases, fests, breaks, exam late nights, graduation/fresher churn,
+  academic phases, fests, breaks, exam-week evenings, graduation/fresher churn,
   weather (heat, cold, rain, fog), weekday rhythm, item complementarity
   (true combos), price elasticity, launches, a competitor opening,
   limited batches -> stockouts -> substitution or lost sales,
@@ -14,13 +14,15 @@ import numpy as np
 import pandas as pd
 from . import config as C
 
-HOURS = np.arange(6, 26)  # 6 .. 25 (25 = 1 am next day)
-BASE_HOUR = np.array([0.25, 0.9, 1.1, 0.8, 0.7, 0.75, 0.7, 0.8, 0.6, 0.55,
-                      0.9, 1.25, 1.2, 0.9, 0.85, 1.0, 1.0, 0.8, 0.45, 0.15])
+OPEN_H, CLOSE_H = C.STALL["open_hour"], C.STALL["close_hour"]
+HOURS = np.arange(OPEN_H, CLOSE_H)  # 9 .. 18 (last sale before 19:00)
+_HOUR_SHAPE = {6: 0.25, 7: 0.9, 8: 1.1, 9: 0.8, 10: 0.7, 11: 0.75, 12: 0.7, 13: 0.8, 14: 0.6, 15: 0.55,
+               16: 0.9, 17: 1.25, 18: 1.2, 19: 0.9, 20: 0.85, 21: 1.0, 22: 1.0, 23: 0.8, 24: 0.45, 25: 0.15}
+BASE_HOUR = np.array([_HOUR_SHAPE[h] for h in HOURS])
 CHRONO = {
-    "early": np.where(HOURS <= 10, 1.6, np.where(HOURS >= 23, 0.4, 1.0)),
+    "early": np.where(HOURS <= 10, 1.6, 1.0),
     "normal": np.ones(len(HOURS)),
-    "owl": np.where(HOURS <= 10, 0.55, np.where(HOURS >= 22, 1.9, 1.0)),
+    "owl": np.where(HOURS <= 10, 0.55, np.where(HOURS >= 17, 1.4, 1.0)),
 }
 GROUP_P = {"normal": [0.62, 0.22, 0.09, 0.04, 0.02, 0.01],
            "big": [0.38, 0.27, 0.16, 0.10, 0.05, 0.04]}
@@ -30,6 +32,21 @@ ELASTICITY = {"maggi": 1.4, "default": 0.8}       # true own-price elasticities
 def slot_of(h):
     return ("morning" if h <= 10 else "midday" if h <= 15 else
             "evening" if h <= 19 else "night" if h <= 23 else "late")
+
+
+def into_open_hours(t: datetime) -> datetime:
+    """Move a timestamp into opening hours (09:00-18:59). Before opening -> same day from 09:00,
+    after closing -> next day from 09:00. Minutes/seconds are kept so times stay spread out."""
+    if t.hour < OPEN_H:
+        return t.replace(hour=OPEN_H)
+    if t.hour >= CLOSE_H:
+        return (t + timedelta(days=1)).replace(hour=OPEN_H)
+    return t
+
+
+def before_close(t: datetime) -> datetime:
+    """Cap a same-day follow-up (retry, refund) at closing time instead of rolling to tomorrow."""
+    return min(t, t.replace(hour=CLOSE_H - 1, minute=59, second=59))
 
 
 def build_items():
@@ -122,18 +139,17 @@ class Simulator:
 
     def hour_weights(self, ctx, chrono):
         w = BASE_HOUR * CHRONO[chrono]
-        late = HOURS >= 22
+        late = HOURS >= 17                                   # exam / fest evenings
         w = np.where(late, w * ctx["late_mult"], w)
         wx = ctx["w"]
         if wx.heatwave:
             w = np.where((HOURS >= 12) & (HOURS <= 16), w * 0.45, w)
-            w = np.where((HOURS >= 20) & (HOURS <= 23), w * 1.2, w)
+            w = np.where(HOURS >= 17, w * 1.2, w)              # people come out once it cools
         if ctx["dow"] == 6:
             w = np.where(HOURS <= 9, w * 0.5, w)
             w = np.where((HOURS >= 10) & (HOURS <= 12), w * 1.5, w)
         if ctx["competitor"]:
-            w = np.where((HOURS >= 20) & (HOURS <= 23), w * C.COMPETITOR_EFFECT["night"], w)
-            w = np.where(HOURS >= 24, w * C.COMPETITOR_EFFECT["late"], w)
+            w = np.where(HOURS >= 16, w * C.COMPETITOR_EFFECT["evening"], w)
         return w / w.sum()
 
     # ------------------------------------------------------------ stock
@@ -250,6 +266,7 @@ class Simulator:
                 payers.append((kind, c, dict(merged)))
             for j, (pk, pc, basket) in enumerate(payers):
                 t = datetime.combine(d, datetime.min.time()) + timedelta(seconds=int(tsec) + j * int(rng.integers(5, 40)))
+                t = min(t, datetime.combine(d, datetime.min.time()) + timedelta(hours=CLOSE_H, seconds=-1))
                 r = self.pay(t, d, pk, pc, basket, phase)
                 upi_rev += r[0]; cash_rev += r[1]
         for k in stock0:
@@ -283,7 +300,7 @@ class Simulator:
         elif cat == "maggi":
             r = rng.random()
             if hot and r < 0.22: add.append("COLD_DRINK")
-            elif r < 0.25: add.append("HOT_COFFEE" if h >= 22 else "MASALA_CHAI")
+            elif r < 0.25: add.append("HOT_COFFEE" if h >= 17 else "MASALA_CHAI")
         elif cat == "sandwich":
             if d >= C.LAUNCHES["COLD_COFFEE"] and rng.random() < 0.3: add.append("COLD_COFFEE")
             elif rng.random() < 0.2: add.append("COLD_DRINK")
@@ -357,7 +374,7 @@ class Simulator:
             self.order_items.append(dict(order_id=oid, item_id=iid, qty=q,
                                          unit_price=price_on(iid, d, self.by_id)))
         if mode == "upi_deferred":
-            later = t + timedelta(hours=float(rng.uniform(1.5, 20)))
+            later = into_open_hours(t + timedelta(hours=float(rng.uniform(1.5, 20))))
             self.deferred.append(dict(order_id=oid, datetime=later, customer_id=cid, amount=amount))
             return amount, 0
         if mode == "lost":

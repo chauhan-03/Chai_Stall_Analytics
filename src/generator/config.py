@@ -14,8 +14,8 @@ STALL = {
     "name": "Shyam Chai Corner",
     "owner": "Shyam Lal Saini",          # fictional
     "location": "Near hostel cluster, BITS Pilani campus (fictional stall)",
-    "open_hour": 6,                      # 06:30 first chai
-    "close_hour": 25,                    # 01:00 next day (campus stalls run late)
+    "open_hour": 9,                      # 09:00 first sale
+    "close_hour": 19,                    # 19:00 close (last sale before 7 pm)
     "masked_phone": "******4417",
     "masked_email": "shyam.chai****@gmail.com",
     "receive_account": "State Bank Of India - 07",
@@ -25,8 +25,10 @@ STALL = {
 # --------------------------------------------------------------------------
 # MENU
 # temp: +1 sells more when cold, -1 sells more when hot, 0 neutral
-# slots: relative appeal by time slot  (morning 6-10, midday 11-15,
-#        evening 16-19, night 20-23, late 24-25)
+# slots: relative appeal by time slot  (morning 9-10, midday 11-15,
+#        evening 16-18; night/late values are unused while the stall closes at 19:00.
+#        Maggi/coffee evening appeal is raised so the hostel snack crowd that used to
+#        come at night now comes before closing)
 # batch: prepared in advance in batches (perishable, can stock out)
 # fried: demand rises on rainy days
 # --------------------------------------------------------------------------
@@ -38,7 +40,7 @@ MENU = [
     ("MASALA_CHAI","Masala Chai",             "beverage_hot", 15, 6.0, 1,  {M:1.3, D:0.9, E:1.3, N:1.0, L:1.0}, False, False, 1.25),
     ("ADRAK_CHAI", "Adrak Elaichi Chai",      "beverage_hot", 20, 7.5, 1,  {M:1.1, D:0.7, E:1.2, N:1.0, L:0.9}, False, False, 0.45),
     ("KULHAD_CHAI","Kulhad Chai",             "beverage_hot", 25, 11.0, 1, {M:0.8, D:0.6, E:1.3, N:1.2, L:0.8}, False, False, 0.35),
-    ("HOT_COFFEE", "Hot Coffee",              "beverage_hot", 25, 9.5, 1,  {M:0.9, D:0.7, E:0.9, N:1.2, L:1.6}, False, False, 0.40),
+    ("HOT_COFFEE", "Hot Coffee",              "beverage_hot", 25, 9.5, 1,  {M:0.9, D:0.7, E:1.25, N:1.2, L:1.6}, False, False, 0.40),
     ("COLD_COFFEE","Cold Coffee",             "beverage_cold",50, 20.0,-1, {M:0.3, D:1.4, E:1.3, N:1.1, L:0.6}, False, False, 0.35),
     ("LASSI",      "Sweet Lassi",             "beverage_cold",40, 16.0,-1, {M:0.6, D:1.5, E:1.1, N:0.6, L:0.2}, True,  False, 0.25),
     ("SHIKANJI",   "Nimbu Shikanji",          "beverage_cold",20, 6.0, -1, {M:0.5, D:1.5, E:1.2, N:0.7, L:0.3}, False, False, 0.30),
@@ -51,9 +53,9 @@ MENU = [
     ("POHA",       "Poha",                    "breakfast",    30, 11.0, 0, {M:2.6, D:0.5, E:0.2, N:0.1, L:0.0}, True,  False, 0.45),
     ("PARATHA",    "Aloo Paratha",            "breakfast",    40, 15.0, 1, {M:2.2, D:0.9, E:0.2, N:0.4, L:0.2}, False, False, 0.35),
     ("BUN_MASKA",  "Bun Maska",               "snack",        25, 9.0, 0,  {M:1.6, D:0.8, E:1.0, N:0.8, L:0.7}, False, False, 0.35),
-    ("MAGGI",      "Plain Maggi",             "maggi",        40, 16.0, 1, {M:0.4, D:1.0, E:0.9, N:1.6, L:2.0}, False, False, 0.85),
-    ("MASALA_MAGGI","Masala Veg Maggi",       "maggi",        55, 22.0, 1, {M:0.3, D:1.0, E:0.9, N:1.6, L:1.8}, False, False, 0.50),
-    ("CHEESE_MAGGI","Cheese Maggi",           "maggi",        70, 32.0, 1, {M:0.2, D:0.9, E:0.8, N:1.5, L:1.8}, False, False, 0.30),
+    ("MAGGI",      "Plain Maggi",             "maggi",        40, 16.0, 1, {M:0.4, D:1.0, E:1.45, N:1.6, L:2.0}, False, False, 0.85),
+    ("MASALA_MAGGI","Masala Veg Maggi",       "maggi",        55, 22.0, 1, {M:0.3, D:1.0, E:1.45, N:1.6, L:1.8}, False, False, 0.50),
+    ("CHEESE_MAGGI","Cheese Maggi",           "maggi",        70, 32.0, 1, {M:0.2, D:0.9, E:1.35, N:1.5, L:1.8}, False, False, 0.30),
     ("VEG_SANDWICH","Veg Sandwich",           "sandwich",     40, 16.0, 0, {M:0.9, D:1.3, E:1.1, N:1.0, L:0.7}, False, False, 0.30),
     ("GRILL_SANDWICH","Grilled Cheese Sandwich","sandwich",   70, 30.0, 0, {M:0.5, D:1.2, E:1.1, N:1.3, L:1.0}, False, False, 0.25),
     ("BREAD_OMELETTE","Bread Omelette",       "egg",          50, 20.0, 1, {M:1.6, D:0.9, E:0.8, N:1.1, L:1.2}, False, False, 0.35),
@@ -79,7 +81,7 @@ CURD_ITEMS = {"LASSI": .25}
 
 # --------------------------------------------------------------------------
 # ACADEMIC CALENDAR  (BITS Pilani style; see docs for confidence)
-# phase -> (student presence, late-night multiplier, outsider multiplier)
+# phase -> (student presence, closing-hours multiplier 17-19h, outsider multiplier)
 # --------------------------------------------------------------------------
 PHASES = {
     "classes":      (1.00, 1.00, 1.0),
@@ -140,14 +142,14 @@ CLOSED_DAYS = {  # stall shut (owner-side events, appear as zero-sale days)
 
 # Synthetic UPI outages (real ones happened 26 Mar, 2 Apr, 12 Apr 2025)
 UPI_OUTAGES = [  # (date, start hour float, end hour float)
-    (date(2026, 1, 23), 18.5, 20.25),
+    (date(2026, 1, 23), 17.0, 18.75),
     (date(2026, 4, 11), 11.0, 13.5),
-    (date(2026, 8, 26), 19.0, 20.0),
+    (date(2026, 8, 26), 16.0, 17.0),
 ]
 
-# Competitor: night canteen opens near the hostels
+# Competitor: a second tea stall opens nearby and takes part of the evening crowd (16-19h)
 COMPETITOR_OPEN = date(2026, 9, 21)
-COMPETITOR_EFFECT = {"night": 0.72, "late": 0.65, "other": 0.95}
+COMPETITOR_EFFECT = {"evening": 0.72, "other": 0.95}
 
 # --------------------------------------------------------------------------
 # CUSTOMERS & PAYMENTS

@@ -60,7 +60,7 @@ TOOLS = [
          "a_start": DATE, "a_end": DATE, "b_start": DATE, "b_end": DATE},
          "required": ["a_start", "a_end", "b_start", "b_end"]}},
     {"name": "detect_shifts",
-     "description": "Finds lasting changes in sales for a time slot (e.g. night sales fell after a date, "
+     "description": "Finds lasting changes in sales for a time slot (e.g. evening sales fell after a date, "
                     "possibly a new competitor).",
      "input_schema": {"type": "object", "properties": {}}},
     {"name": "detect_outages",
