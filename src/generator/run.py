@@ -1,6 +1,7 @@
 """Generate the synthetic dataset.
 
-    python -m src.generator.run
+    python -m src.generator.run                      # chai stall
+    STALL_PROFILE=redi python -m src.generator.run   # redi stall (real menu) -> data/redi/
 
 Outputs
   data/raw/            what the stall owner would hand over (+ public context data)
@@ -20,9 +21,7 @@ from .people import make_customers
 from .simulate import Simulator, build_items, price_on, cost_on, ELASTICITY
 from .statement import StatementWriter
 from .weather import make_weather
-
-ROOT = Path(__file__).resolve().parents[2]
-RAW, KEY = ROOT / "data" / "raw", ROOT / "data" / "answer_key"
+from ..profiles import PROFILE, RAW, KEY
 
 
 def main():
@@ -54,11 +53,15 @@ def main():
         true = cls_days[f"sold_{iid}"].mean()
         g = true * rng.lognormal(0, 0.35)
         return int(round(g / 5) * 5) if g >= 10 else max(1, int(round(g)))
-    pd.DataFrame([{
+    menu = pd.DataFrame([{
         "item_id": it["id"], "item": it["name"], "category": it["category"],
         "price": price_on(it["id"], end, by_id), "cost": cost_on(it["id"], end, by_id),
         "made_in_batches": it["batch"], "owner_estimate_daily": gut(it["id"]),
-    } for it in items]).to_csv(RAW / "menu.csv", index=False)
+    } for it in items])
+    if C.MENU_ALIASES:   # redi: owner's keywords for remarks + which batch item each dish uses
+        menu["aliases"] = menu.item_id.map(C.MENU_ALIASES).fillna("")
+        menu["uses_stock_of"] = menu.item_id.map(C.STOCK_USES).fillna("")
+    menu.to_csv(RAW / "menu.csv", index=False)
     hist = [{"item_id": i, "effective_date": d, "event": "price_change", "new_price": p,
              "old_price": by_id[i]["price0"]} for i, d, p in C.PRICE_CHANGES]
     hist += [{"item_id": i, "effective_date": d, "event": "launch",
@@ -79,13 +82,9 @@ def main():
     customers.drop(columns=["fav"]).to_csv(KEY / "customers.csv", index=False)
     truth = {
         "elasticity": ELASTICITY,
-        "combo_rules_injected": [
-            "fried snack -> chai (58% normal, 35% when tmax>=36)",
-            "poha / bread omelette -> chai (50%)", "paratha -> masala chai (45%)",
-            "maggi -> cold drink (hot) or coffee (after 17:00) / chai",
-            "sandwich -> cold coffee (30% after launch)",
-            "chai -> bun maska / kachori (morning), samosa / mirchi bada (evening) 28%",
-            "masala chai + samosa -> Chai Samosa Combo (75% after 1 Feb 2026)"],
+        "profile": PROFILE,
+        "combo_rules_injected": C.COMBO_RULES_TEXT,
+        "price_changes": [[i, str(d), p] for i, d, p in C.PRICE_CHANGES],
         "competitor_open": str(C.COMPETITOR_OPEN), "competitor_effect": C.COMPETITOR_EFFECT,
         "upi_outages": [[str(a), b, c] for a, b, c in C.UPI_OUTAGES],
         "cash_trend": C.CASH_TREND,

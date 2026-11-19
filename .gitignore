@@ -6,3 +6,4 @@ data/uploads/
 eval/agent_log.jsonl
 eval/last_run.log
 .DS_Store
+~$*

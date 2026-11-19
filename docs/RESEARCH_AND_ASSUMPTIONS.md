@@ -93,6 +93,27 @@ approximate. Fog in late Dec – Jan is assumed (A).
 | Payment noise | split bills, duplicate payments + refunds, typo payments (₹450 for ₹45) + partial refund, deferred payments after outages, customer remarks in ~5% of payments |
 | Owner's own rows | dairy, gas, kirana, bakery, distributor, kulhad supplier, licence fee, electricity, helper wages, family transfers, recharges, weekly self-transfers, money from relatives, cashback |
 
+## Second stall: real redi menu (`STALL_PROFILE=redi`)
+
+A second synthetic stall uses a **real menu card** (photo of a redi/canteen board) so the
+pipeline can be tested on a realistic menu. Campus, calendar, weather, customers, opening hours,
+competitor, outages and cash trend are the same as the chai stall, so only the menu differs.
+Defined in `src/generator/config_redi.py`.
+
+| Assumption | Value |
+|---|---|
+| Menu | 62 items read off the card: 8 hot drinks, 19 cold drinks/shakes/juices, 7 fried snacks, 11 chaat, 4 meals/breakfast, 4 sandwiches, 3 burgers, 4 maggi, 2 small add-ons. Two items on the partly cut-off top board are left out |
+| Prices | as printed (= end-of-year prices). **22 items cost ₹40 and 13 cost ₹50**, so one amount fits many items |
+| Price changes | Cold Coffee ₹35→40 (15 Jan), Maggie Extra Masala ₹35→40 and Cheese Maggie ₹45→50 (1 Sep) |
+| Launches | Paneer Fried Maggi and Paneer Burger (the separate top board) from 1 Aug 2026 |
+| Costs | assumed food-cost ratios: tea ~35%, milk drinks/shakes ~45%, juices ~50%, sharbat ~30%, snacks/chaat ~40%, packaged ~60–70% (A) |
+| Popularity | tea the bestseller, then samosa; shakes, juices and paneer items niche (A) |
+| Batch items | samosa, dal kachori, mirchi bhaji, bread pakoda, aloo bonda, mix veg pakoda, poha, lassi |
+| Shared stock | samosa chaat, butter sam chaat, chole samosa, samfry and samosa sandwich use up a samosa; kachori chaat and chole kachori use up a kachori (menu column `uses_stock_of`) |
+| Combos | fried snack → tea; chaat → masala cold drink / lemon soda / shikanji; kulcha / vada pav / poha → tea; burger → cold coffee / shake; sandwich → cold coffee; maggi → tea or evening coffee; tea → kachori / pakoda (morning), samosa / mirchi (evening) |
+| Remarks | customers type item words in Hinglish, including vague ones ("shake", "juice", "sandwich"); the owner's keyword list (menu column `aliases`) reads the specific ones, longest first |
+| Basket model | 62 items make 5-item baskets too many to list (~8 million), so baskets of up to 4 items are listed (~720k); larger payments use the revenue-weighted fallback |
+
 ## Sources
 
 - [BITS-UB academic calendar](https://admissions.bits-pilani.ac.in/BITS-UB/downloads/BITS-UB_AcademicCalendar.pdf)

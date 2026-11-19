@@ -44,7 +44,9 @@ def main():
     n = len(rows)
     summary = {k: sum(r[k] for r in rows) / n for k in ("tool_ok", "faithful", "actionable")}
     name = "offline" if offline else "claude"
-    out = ROOT / "eval" / f"agent_results_{name}.json"
+    from src.profiles import EVAL_OUT
+    EVAL_OUT.mkdir(parents=True, exist_ok=True)
+    out = EVAL_OUT / f"agent_results_{name}.json"
     out.write_text(json.dumps(dict(summary=summary, rows=rows), indent=1, ensure_ascii=False))
     print(f"\n{name}: tool accuracy {summary['tool_ok']:.0%}, faithfulness {summary['faithful']:.0%}, "
           f"actionable {summary['actionable']:.0%}  ({n} questions) -> {out.name}")

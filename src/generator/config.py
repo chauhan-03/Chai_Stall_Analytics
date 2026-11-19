@@ -173,3 +173,32 @@ APP_HANDLES = {
     "BHIM": ["upi"],
 }
 CASH_TREND = 0.22          # relative fall in cash propensity across the year
+
+# --------------------------------------------------------------------------
+# MENU-SPECIFIC BEHAVIOUR (chai stall values; the redi profile overrides them)
+# --------------------------------------------------------------------------
+BATCH_START = {"SAMOSA": 130, "KACHORI": 45, "MIRCHI_BADA": 30, "BREAD_PAKODA": 35,
+               "POHA": 30, "LASSI": 12}          # owner's first-day prep, before any history
+STOCK_USES = {"COMBO_CS": "SAMOSA"}              # dish -> batch item it uses up
+SUBSTITUTES = ("SAMOSA", "KACHORI", "MIRCHI_BADA", "BREAD_PAKODA", "BUN_MASKA")  # on sell-out
+ADDONS = None             # None -> the hand-written chai-stall basket rules in simulate.py
+EXTRA_MILK = {"LASSI": 0.25, "BUN_MASKA": 0.01}  # litres (curd counted as milk)
+PACKAGED_ITEMS = ["COLD_DRINK", "WATER", "BISCUIT", "CHIPS"]
+BAKERY_COST = {"BUN_MASKA": 6, "VEG_SANDWICH": 7, "GRILL_SANDWICH": 8, "BREAD_PAKODA": 3,
+               "BREAD_OMELETTE": 4}
+KULHAD_COST = {"KULHAD_CHAI": 3}
+REMARK_WORDS = None       # None -> statement.py's chai-stall remark words
+GENERIC_REMARKS = None
+MENU_ALIASES = None       # redi: written to menu.csv so the pipeline can read remarks
+COMBO_RULES_TEXT = [
+    "fried snack -> chai (58% normal, 35% when tmax>=36)",
+    "poha / bread omelette -> chai (50%)", "paratha -> masala chai (45%)",
+    "maggi -> cold drink (hot) or coffee (after 17:00) / chai",
+    "sandwich -> cold coffee (30% after launch)",
+    "chai -> bun maska / kachori (morning), samosa / mirchi bada (evening) 28%",
+    "masala chai + samosa -> Chai Samosa Combo (75% after 1 Feb 2026)"]
+
+from ..profiles import PROFILE  # noqa: E402
+if PROFILE == "redi":
+    from .config_redi import OVERRIDES
+    globals().update(OVERRIDES)

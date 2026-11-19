@@ -1,0 +1,6 @@
+item_id,effective_date,event,new_price,old_price
+COLD_COFFEE,2026-01-15,price_change,40,35.0
+MAGGI,2026-09-01,price_change,40,35.0
+CHEESE_MAGGI,2026-09-01,price_change,50,45.0
+PANEER_MAGGI,2026-08-01,launch,70,
+PANEER_BURGER,2026-08-01,launch,60,

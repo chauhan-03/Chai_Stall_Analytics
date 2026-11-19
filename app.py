@@ -17,7 +17,7 @@ warnings.filterwarnings("ignore")
 from src.pipeline.analytics import StallAnalytics  # noqa: E402
 
 ROOT = Path(__file__).parent
-RAW = ROOT / "data" / "raw"
+from src.profiles import RAW  # noqa: E402  (STALL_PROFILE=redi for the real-menu stall)
 UP = ROOT / "data" / "uploads"
 st.set_page_config(page_title="Chai Stall Analytics", page_icon="☕", layout="wide")
 

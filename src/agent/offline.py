@@ -113,6 +113,13 @@ class OfflineAgent:
 
     def ask(self, question):
         tool, args = route(question)
+        if "item" in args and args["item"] not in self.A.ids:
+            # another menu (e.g. the redi stall): look the customer's word up by item name
+            word = next(k for k, v in ITEM_WORDS.items() if v == args["item"] and k in question.lower())
+            try:
+                args["item"] = self.A._resolve_item(word)
+            except ValueError:
+                tool, args = "sales_mix", {"days": 30, "top": 8}
         r = getattr(self.A, tool)(**args)
         return dict(answer=render(tool, r), tools=[dict(tool=tool, input=args, ok=True)],
                     unsupported_numbers=[], ok=True, model="offline-router")

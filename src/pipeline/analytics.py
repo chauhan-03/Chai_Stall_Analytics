@@ -74,11 +74,13 @@ class StallAnalytics:
             dec = BasketDecomposer(self.menu, use_owner_prior=self.use_owner_prior)
             res = dec.fit_transform(sales, w)
             st = dict(tx=tx, sales=res["tx"], expected=res["expected"], map=res["map"],
-                      theta=dec.theta_table(), prior=dec.prior_used, pair_mats=res["pair_mats"])
+                      theta=dec.theta_table(), prior=dec.prior_used, pair_mats=res["pair_mats"],
+                      max_items=dec.max_items)
             cache.write_bytes(pickle.dumps(st))
         self.tx, self.sales, self.expected = st["tx"], st["sales"], st["expected"]
         self.map, self.theta, self.prior_used = st["map"], st["theta"], st["prior"]
         self.pair_mats = st["pair_mats"]
+        self.max_items = st.get("max_items", 5)
         self._build_daily()
 
     def _build_daily(self):
@@ -138,7 +140,7 @@ class StallAnalytics:
         alias = {"chai": "MASALA_CHAI", "tea": "MASALA_CHAI", "samose": "SAMOSA", "coke": "COLD_DRINK",
                  "omelette": "BREAD_OMELETTE", "sandwich": "VEG_SANDWICH", "coffee": "HOT_COFFEE"}
         for k, v in alias.items():
-            if k in n:
+            if k in n and v in self.ids:
                 return v
         raise ValueError(f"Unknown item '{name}'. Menu items: {', '.join(self.menu.names.values())}")
 
@@ -308,10 +310,11 @@ class StallAnalytics:
 
     def prep_plan(self, day=None, salvage_share=0.0):
         day = pd.to_datetime(day).date() if day else self.last + timedelta(days=1)
-        fc = self.forecast_items([i for i in self.ids if self.menu.batch.get(i) and i != "COMBO_CS"],
+        uses = self.menu.stock_of                          # dish -> batch item it uses up
+        fc = self.forecast_items([i for i in self.ids if self.menu.batch.get(i) and i not in uses],
                                  days=1, start=day)["forecasts"]
-        combo = self.forecast_items(["COMBO_CS"], days=1, start=day)["forecasts"] if not np.isnan(
-            self._price("COMBO_CS")) else []
+        live = [j for j in uses if not np.isnan(self._price(j, day))]
+        derived = {r["item_id"]: r for r in self.forecast_items(live, days=1, start=day)["forecasts"]} if live else {}
         rows = []
         for r in fc:
             iid = r["item_id"]
@@ -319,8 +322,9 @@ class StallAnalytics:
             cu, co = p - c, c - salvage_share * c
             cr = cu / (cu + co)
             p10, p50, p90 = r["p10"], r["p50"], r["p90"]
-            if iid == "SAMOSA" and combo:               # combo uses a samosa too
-                p10 += combo[0]["p10"]; p50 += combo[0]["p50"]; p90 += combo[0]["p90"]
+            for j, r2 in derived.items():               # e.g. combo / samosa chaat use a samosa too
+                if uses[j] == iid:
+                    p10 += r2["p10"]; p50 += r2["p50"]; p90 += r2["p90"]
             q = max(0.0, self._quantile(p10, p50, p90, cr))
             bs = BATCH_SIZE.get(iid, 5)
             q_rounded = int(math.ceil(q / bs) * bs)
@@ -609,7 +613,7 @@ class StallAnalytics:
 
 
 def default_analytics(**kw) -> StallAnalytics:
-    raw = ROOT / "data" / "raw"
+    from ..profiles import RAW as raw          # STALL_PROFILE picks the chai or redi stall
     stmt = next(raw.glob("Paytm*.xlsx"))
     return StallAnalytics(stmt, raw / "menu.csv", raw / "menu_price_history.csv",
                           raw / "campus_calendar.csv", raw / "weather_pilani.csv",

@@ -1,0 +1,57 @@
+{
+  "elasticity": {
+    "maggi": 1.4,
+    "default": 0.8
+  },
+  "profile": "redi",
+  "combo_rules_injected": [
+    "fried snack -> tea/coffee (55%, 35% when tmax>=36; cold drink or shikanji when hot)",
+    "chaat -> masala cold drink / lemon soda / shikanji / tea (32%)",
+    "chole kulcha / vada pav / poha -> tea (45%; lassi or shikanji when hot)",
+    "burger -> cold coffee / masala cold drink / shake (38%)",
+    "sandwich -> cold coffee / ice tea / chocolate shake (30%)",
+    "maggi -> tea, or coffee in the evening (28%); cold drink when hot",
+    "tea -> kachori / bread pakoda / poha (morning), samosa / mirchi bhaji (evening), bhujiya 30%",
+    "cold coffee -> burger / sandwich (20%)"
+  ],
+  "price_changes": [
+    [
+      "COLD_COFFEE",
+      "2026-01-15",
+      40
+    ],
+    [
+      "MAGGI",
+      "2026-09-01",
+      40
+    ],
+    [
+      "CHEESE_MAGGI",
+      "2026-09-01",
+      50
+    ]
+  ],
+  "competitor_open": "2026-09-21",
+  "competitor_effect": {
+    "evening": 0.72,
+    "other": 0.95
+  },
+  "upi_outages": [
+    [
+      "2026-01-23",
+      17.0,
+      18.75
+    ],
+    [
+      "2026-04-11",
+      11.0,
+      13.5
+    ],
+    [
+      "2026-08-26",
+      16.0,
+      17.0
+    ]
+  ],
+  "cash_trend": 0.22
+}

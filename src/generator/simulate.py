@@ -157,15 +157,14 @@ class Simulator:
         """Owner's rule of thumb: last two same weekdays' sales x 1.1."""
         plan = {}
         for it in self.items:
-            if not it["batch"] or it["id"] == "COMBO_CS":
+            if not it["batch"] or it["id"] in C.STOCK_USES:
                 continue
             hist = [s for (dd, s) in self.sold_hist[it["id"]][-14:] if dd.weekday() == d.weekday()]
             recent = [s for (_, s) in self.sold_hist[it["id"]][-3:]]
             if len(hist) >= 1:
                 base = 0.6 * np.mean(hist) + 0.4 * np.mean(recent)
             else:
-                base = {"SAMOSA": 130, "KACHORI": 45, "MIRCHI_BADA": 30, "BREAD_PAKODA": 35,
-                        "POHA": 30, "LASSI": 12}[it["id"]]
+                base = C.BATCH_START[it["id"]]
             batch = 10 if it["id"] in ("SAMOSA", "KACHORI") else 5
             q = int(np.ceil(max(base * 1.22 * self.rng.normal(1, 0.07), batch) / batch) * batch)
             plan[it["id"]] = q
@@ -270,7 +269,7 @@ class Simulator:
                 r = self.pay(t, d, pk, pc, basket, phase)
                 upi_rev += r[0]; cash_rev += r[1]
         for k in stock0:
-            used = sold[k] + (sold["COMBO_CS"] if k == "SAMOSA" else 0)
+            used = sold[k] + sum(sold[j] for j, b in C.STOCK_USES.items() if b == k)
             self.sold_hist[k].append((d, used))
         self._record_day(d, phase, label, w, closed, stock0, demand, sold, lost, upi_rev, cash_rev)
 
@@ -287,7 +286,9 @@ class Simulator:
         hot = ctx["w"].tmax >= 36
         cat = self.by_id[primary]["category"]
         add = []
-        if cat == "snack_fried":
+        if C.ADDONS is not None:
+            add = self._rule_addons(primary, h, hot, d)
+        elif cat == "snack_fried":
             if rng.random() < (0.35 if hot else 0.58):
                 add.append("MASALA_CHAI" if rng.random() < 0.6 else "CUT_CHAI")
             elif hot and rng.random() < 0.2:
@@ -315,7 +316,7 @@ class Simulator:
         for a in add:
             basket[a] += 1
         # combo substitution: masala chai + samosa -> combo at ₹25
-        if (d >= C.LAUNCHES["COMBO_CS"] and basket.get("MASALA_CHAI") == 1
+        if ("COMBO_CS" in C.LAUNCHES and d >= C.LAUNCHES["COMBO_CS"] and basket.get("MASALA_CHAI") == 1
                 and basket.get("SAMOSA") == 1 and rng.random() < 0.75):
             del basket["MASALA_CHAI"]; del basket["SAMOSA"]; basket["COMBO_CS"] = 1
 
@@ -323,7 +324,7 @@ class Simulator:
         final = {}
         for iid, q in basket.items():
             demand[iid] += q
-            sk = "SAMOSA" if iid == "COMBO_CS" else iid
+            sk = C.STOCK_USES.get(iid, iid)
             if sk in stock:
                 avail = stock[sk]
                 if avail >= q:
@@ -335,7 +336,7 @@ class Simulator:
                     lost[iid] += short
                     # substitute with another in-stock fried snack or chai
                     if rng.random() < 0.55:
-                        subs = [s for s in ("SAMOSA", "KACHORI", "MIRCHI_BADA", "BREAD_PAKODA", "BUN_MASKA")
+                        subs = [s for s in C.SUBSTITUTES
                                 if s != sk and (s not in stock or stock[s] > 0)]
                         s = subs[int(rng.integers(len(subs)))]
                         if s in stock: stock[s] -= 1
@@ -343,6 +344,25 @@ class Simulator:
             else:
                 final[iid] = final.get(iid, 0) + q; sold[iid] += q
         return final
+
+    def _rule_addons(self, primary, h, hot, d):
+        """Config-driven basket rules (redi profile): the first matching rule may add one item."""
+        rng = self.rng
+        cat = self.by_id[primary]["category"]
+        for r in C.ADDONS:
+            if primary not in r.get("items", ()) and cat not in r.get("cats", ()):
+                continue
+            p = r["p_hot"] if (hot and r.get("p_hot") is not None) else r["p"]
+            if rng.random() >= p:
+                return []
+            opts = (r["hot_with"] if hot and r.get("hot_with") else
+                    r.get("by_slot", {}).get(slot_of(h), r["with_"]))
+            opts = [(i, w) for i, w in opts if not (C.LAUNCHES.get(i) and d < C.LAUNCHES[i])]
+            if not opts:
+                return []
+            w = np.array([w for _, w in opts]); w = w / w.sum()
+            return [opts[int(rng.choice(len(opts), p=w))][0]]
+        return []
 
     # ------------------------------------------------------------ payments
     def pay(self, t, d, kind, c, basket, phase):

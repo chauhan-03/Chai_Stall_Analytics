@@ -38,6 +38,10 @@ python3 -m venv .venv && .venv/bin/pip install -r requirements.txt
 
 The first load decomposes ~50k payments (~80 s); later runs use the cache in `data/processed/`.
 
+**Second stall (real menu):** put `STALL_PROFILE=redi` in front of any command above, e.g.
+`STALL_PROFILE=redi .venv/bin/python -m src.generator.run`. Data goes to `data/redi/`, reports to `eval/redi/`.
+The first evaluation run takes ~7 min and ~1 GB of memory.
+
 **Chat:** without a key the app uses an offline keyword router. For the Claude agent:
 `export ANTHROPIC_API_KEY=...` before `streamlit run`. Model: `claude-opus-5-5`; override with `STALL_AGENT_MODEL`.
 
@@ -81,10 +85,44 @@ drawing firm conclusions.
   instead of using it.
 - **Cash is invisible.** Revenue is a range driven by the cash-share assumption.
 
+## Second stall: a real redi menu
+
+To test the pipeline on a realistic menu, a second stall (`STALL_PROFILE=redi`) uses a **real menu card**
+photographed at a redi/canteen: 62 items (tea, shakes, juices, chaat, fried snacks, kulcha, burgers, maggi).
+Campus, calendar, weather, customers, hours and events are the same as the chai stall, so only the menu
+differs. Assumptions are in [docs/RESEARCH_AND_ASSUMPTIONS.md](docs/RESEARCH_AND_ASSUMPTIONS.md).
+
+The hard part is prices: **22 items cost ₹40 and 13 cost ₹50**. For a one-item payment, the amount matches
+11.3 menu items on average, against 3.8 at the chai stall.
+
+| Stage | Chai stall (26 items) | Redi, real menu (62 items) |
+|---|---|---|
+| Statement row classification | 100% | 99.99% |
+| Total revenue incl. cash | +2.7% for the year; 5.8% daily WAPE | +4.1%; 6.6% daily WAPE |
+| Item mix (totals) | 24.7% WAPE; rank ρ = 0.82 | 25.6% WAPE; rank ρ = 0.86 |
+| Exact basket per payment | 26% (79% on the 7% confident payments) | **19%** (96% on the **3%** confident payments) |
+| Combos | 80% of rules real; 6 of 10 top pairs found | **60%** real; **4 of 10** found |
+| Revenue forecast (6 weeks) | 15.3% WAPE vs 19.9% baseline | 15.0% vs 17.2% baseline |
+| Prep plan vs owner's habit | +₹1,380 in 6 weeks | +₹4,280 in 6 weeks |
+| Competitor detection | found on the exact date | **missed** (true evening drop ~15%) |
+| UPI outages | 3 of 3, 1 false alarm | 3 of 3, no false alarms |
+| Agent, offline router | 58% right tool, 100% faithful | 58% right tool, 100% faithful |
+
+What the real menu shows:
+
+- **Total item counts hold up; single payments don't.** Item totals are about as accurate as at the chai stall,
+  but the model is confident about only 3% of payments.
+- **Unique prices attract wrong guesses.** Cheese Chola Kulcha is the only ₹75 item, so ₹75 payments
+  (often ₹40 + ₹35 or ₹50 + ₹25) are read as a kulcha: +645%. Special Tea is under-counted by 36%.
+- **Combos and price elasticity get harder.** Fewer pairs are found, and none of the three price changes gives
+  a usable elasticity estimate (all flagged unreliable, correctly).
+- **Revenue, forecast and prep plan are hardly affected**, since they depend on amounts more than on items.
+
 ## Project layout
 
 ```
-src/generator/   synthetic stall: config (research-backed), weather, people, simulate, statement
+src/generator/   synthetic stall: config (research-backed), config_redi (real menu), weather, people, simulate, statement
+src/profiles.py  STALL_PROFILE=chai|redi -> which stall and which data folders
 src/pipeline/    ingest, menu, decompose (EM), forecast, analytics (all tools)
 src/agent/       tools (JSON schemas), agent (Claude tool loop + faithfulness check), offline router
 eval/            evaluate_pipeline.py, evaluate_agent.py, agent_questions.json, report.md

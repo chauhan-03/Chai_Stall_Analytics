@@ -12,6 +12,16 @@ class Menu:
         self.cost = dict(zip(self.menu.item_id, self.menu.cost))
         self.category = dict(zip(self.menu.item_id, self.menu.category))
         self.batch = dict(zip(self.menu.item_id, self.menu.made_in_batches))
+        # optional owner keywords for reading remarks ("chole samosa|chola samosa")
+        self.aliases = ({iid: [w.strip() for w in str(a).split("|") if w.strip()]
+                         for iid, a in zip(self.menu.item_id, self.menu["aliases"].fillna(""))}
+                        if "aliases" in self.menu else None)
+        # dish -> batch item it uses up (samosa chaat uses a samosa); chai stall: the combo
+        if "uses_stock_of" in self.menu:
+            self.stock_of = {i: u for i, u in zip(self.menu.item_id, self.menu["uses_stock_of"].fillna(""))
+                             if u and u in self.ids}
+        else:
+            self.stock_of = {"COMBO_CS": "SAMOSA"} if {"COMBO_CS", "SAMOSA"} <= set(self.ids) else {}
         self.owner_estimate = (self.menu["owner_estimate_daily"].fillna(0).astype(float).values + 0.5
                                if "owner_estimate_daily" in self.menu else None)
         h = pd.read_csv(history_csv, parse_dates=["effective_date"]) if history_csv else pd.DataFrame(

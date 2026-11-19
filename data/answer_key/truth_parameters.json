@@ -3,6 +3,7 @@
     "maggi": 1.4,
     "default": 0.8
   },
+  "profile": "chai",
   "combo_rules_injected": [
     "fried snack -> chai (58% normal, 35% when tmax>=36)",
     "poha / bread omelette -> chai (50%)",
@@ -11,6 +12,23 @@
     "sandwich -> cold coffee (30% after launch)",
     "chai -> bun maska / kachori (morning), samosa / mirchi bada (evening) 28%",
     "masala chai + samosa -> Chai Samosa Combo (75% after 1 Feb 2026)"
+  ],
+  "price_changes": [
+    [
+      "MAGGI",
+      "2026-09-01",
+      50
+    ],
+    [
+      "MASALA_MAGGI",
+      "2026-09-01",
+      60
+    ],
+    [
+      "KULHAD_CHAI",
+      "2026-01-15",
+      30
+    ]
   ],
   "competitor_open": "2026-09-21",
   "competitor_effect": {

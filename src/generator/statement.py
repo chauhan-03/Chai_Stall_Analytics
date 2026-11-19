@@ -28,6 +28,8 @@ REMARK_WORDS = {
     "COMBO_CS": ["combo", "chai samosa"],
 }
 GENERIC_REMARKS = ["🙏", "thanks bhaiya", "UPI", "Paid via app", "food", "👍", "shyam bhaiya", "snacks"]
+REMARK_WORDS = C.REMARK_WORDS or REMARK_WORDS          # redi profile brings its own menu words
+GENERIC_REMARKS = C.GENERIC_REMARKS or GENERIC_REMARKS
 
 VENDORS = {  # fictional suppliers: (display, vpa, tag)
     "dairy": ("Shree Ganesh Dairy", "paytmqr28100505019kx3dairy@paytm on Paytm", "#🛒 Groceries"),
@@ -142,18 +144,16 @@ class StatementWriter:
         for _, row in d.iterrows():
             day = row["date"].date()
             m = sum(row[f"sold_{i}"] * C.MILK_ITEMS.get(i, 0) for i in items)
-            m += row["sold_LASSI"] * 0.25 + row["sold_BUN_MASKA"] * 0.01
+            m += sum(row[f"sold_{i}"] * q for i, q in C.EXTRA_MILK.items())
             milk_l.append(m)
             cogs.append(sum(row[f"sold_{i}"] * cost_on(i, day, items) for i in items))
         d["milk_l"], d["cogs"] = milk_l, cogs
         milk_price = np.where(d["date"] >= pd.Timestamp(2026, 4, 1), 59.5, 56.0)
         d["milk_cost"] = d["milk_l"] * milk_price
-        pk = ["COLD_DRINK", "WATER", "BISCUIT", "CHIPS"]
-        d["packaged_cost"] = sum(d[f"sold_{i}"] * items[i]["cost0"] for i in pk)
-        d["bakery_cost"] = (d["sold_BUN_MASKA"] * 6 + d["sold_VEG_SANDWICH"] * 7 + d["sold_GRILL_SANDWICH"] * 8
-                            + d["sold_BREAD_PAKODA"] * 3 + d["sold_BREAD_OMELETTE"] * 4)
+        d["packaged_cost"] = sum(d[f"sold_{i}"] * items[i]["cost0"] for i in C.PACKAGED_ITEMS)
+        d["bakery_cost"] = sum(d[f"sold_{i}"] * c for i, c in C.BAKERY_COST.items())
         d["kirana_cost"] = (d["cogs"] - d["milk_cost"] - d["packaged_cost"] - d["bakery_cost"]).clip(lower=0)
-        d["kulhad_cost"] = d["sold_KULHAD_CHAI"] * 3
+        d["kulhad_cost"] = sum(d[f"sold_{i}"] * c for i, c in C.KULHAD_COST.items())
 
         def pay_every(col, vendor, every, upi_share, hour_rng, rnd=10):
             acc, last = 0.0, None
