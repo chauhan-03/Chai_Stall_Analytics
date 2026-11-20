@@ -2,6 +2,7 @@
 
     python -m eval.evaluate_agent --offline        # keyword router baseline, no key needed
     python -m eval.evaluate_agent                  # Claude agent (needs ANTHROPIC_API_KEY); costs money
+    python -m eval.evaluate_agent --groq           # Groq agent (needs GROQ_API_KEY)
 
 Scores
   tool accuracy   : at least one expected tool was called
@@ -21,10 +22,14 @@ from src.pipeline.analytics import default_analytics  # noqa: E402
 
 def main():
     offline = "--offline" in sys.argv
+    groq = "--groq" in sys.argv
     A = default_analytics()
     if offline:
         from src.agent.offline import OfflineAgent
         agent = OfflineAgent(A)
+    elif groq:
+        from src.agent.groq_agent import GroqAgent
+        agent = GroqAgent(A, log=ROOT / "eval" / "agent_log.jsonl")
     else:
         from src.agent.agent import StallAgent
         agent = StallAgent(A, log=ROOT / "eval" / "agent_log.jsonl")
@@ -32,7 +37,7 @@ def main():
     rows = []
     for item in qs:
         if not offline:
-            agent.history = []            # each question independent
+            agent.history = []            # (Groq/Claude)            # each question independent
         r = agent.ask(item["q"])
         used = [t["tool"] for t in r["tools"]]
         rows.append(dict(q=item["q"], expected=item["expect"], used=used,
@@ -43,7 +48,7 @@ def main():
         print(f"[{'ok' if rows[-1]['tool_ok'] else 'XX'}] {item['q']} -> {used}")
     n = len(rows)
     summary = {k: sum(r[k] for r in rows) / n for k in ("tool_ok", "faithful", "actionable")}
-    name = "offline" if offline else "claude"
+    name = "offline" if offline else ("groq" if groq else "claude")
     from src.profiles import EVAL_OUT
     EVAL_OUT.mkdir(parents=True, exist_ok=True)
     out = EVAL_OUT / f"agent_results_{name}.json"

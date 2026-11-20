@@ -1,6 +1,6 @@
 {
  "summary": {
-  "tool_ok": 0.5833333333333334,
+  "tool_ok": 1.0,
   "faithful": 1.0,
   "actionable": 1.0
  },
@@ -18,7 +18,7 @@
    "tool_ok": true,
    "faithful": true,
    "actionable": true,
-   "answer": "Kal (2026-11-16) ke liye prep:\n- Sweet Lassi: 15 banao (demand 10-16, most likely 14)\n- Samosa: 50 banao (demand 29-50, most likely 43)\n- Pyaaz Kachori: 40 banao (demand 20-40, most likely 30)\n- Mirchi Bada: 15 banao (demand 10-18, most likely 14)\n- Bread Pakoda: 20 banao (demand 11-19, most likely 15)\n- Poha: 10 banao (demand 4-7, most likely 6)\nSuggestion: in numbers se shuru karo; jis din jaldi khatam ho, time note karo."
+   "answer": "Kal (2026-11-16) ke liye prep:\n- Samosa: 50 banao (demand 29-50, most likely 43)\nSuggestion: Samosa ka andaaza sabse kam pakka hai (29-50); pehle 43 banao, rush se pehle zaroorat ho to ek batch aur."
   },
   {
    "q": "Kal kitna poha aur lassi ready rakhu?",
@@ -27,12 +27,12 @@
     "forecast_items"
    ],
    "used": [
-    "forecast_revenue"
+    "prep_plan"
    ],
-   "tool_ok": false,
+   "tool_ok": true,
    "faithful": true,
    "actionable": true,
-   "answer": "2026-11-16 (Sem I classes): sales ₹7710-₹15100, most likely ₹11321 (cash share assumed). Agle 7 din: ~₹78539.\nSuggestion: busy din ke liye extra doodh aur samose ready rakho."
+   "answer": "Kal (2026-11-16) ke liye prep:\n- Sweet Lassi: 15 banao (demand 10-16, most likely 14)\n- Poha: 10 banao (demand 4-7, most likely 6)\nSuggestion: Sweet Lassi ka andaaza sabse kam pakka hai (10-16); pehle 14 banao, rush se pehle zaroorat ho to ek batch aur."
   },
   {
    "q": "How many kachoris should I make tomorrow?",
@@ -46,7 +46,7 @@
    "tool_ok": true,
    "faithful": true,
    "actionable": true,
-   "answer": "Kal (2026-11-16) ke liye prep:\n- Sweet Lassi: 15 banao (demand 10-16, most likely 14)\n- Samosa: 50 banao (demand 29-50, most likely 43)\n- Pyaaz Kachori: 40 banao (demand 20-40, most likely 30)\n- Mirchi Bada: 15 banao (demand 10-18, most likely 14)\n- Bread Pakoda: 20 banao (demand 11-19, most likely 15)\n- Poha: 10 banao (demand 4-7, most likely 6)\nSuggestion: in numbers se shuru karo; jis din jaldi khatam ho, time note karo."
+   "answer": "Kal (2026-11-16) ke liye prep:\n- Pyaaz Kachori: 40 banao (demand 20-40, most likely 30)\nSuggestion: Pyaaz Kachori ka andaaza sabse kam pakka hai (20-40); pehle 30 banao, rush se pehle zaroorat ho to ek batch aur."
   },
   {
    "q": "Kal ki sale kitni hogi?",
@@ -60,7 +60,7 @@
    "tool_ok": true,
    "faithful": true,
    "actionable": true,
-   "answer": "2026-11-16 (Sem I classes): sales ₹7710-₹15100, most likely ₹11321 (cash share assumed). Agle 7 din: ~₹78539.\nSuggestion: busy din ke liye extra doodh aur samose ready rakho."
+   "answer": "Kal 2026-11-16 (Monday, Sem I classes): sale ₹7,710-₹15,100, most likely ₹11,321 (UPI ~₹8,491; cash share assume kiya).\nSuggestion: ₹11,321 ke hisaab se tayari karo, upar ke range ke liye thoda backup."
   },
   {
    "q": "Agle hafte kitna kamaunga?",
@@ -73,7 +73,7 @@
    "tool_ok": true,
    "faithful": true,
    "actionable": true,
-   "answer": "2026-11-16 (Sem I classes): sales ₹7710-₹15100, most likely ₹11321 (cash share assumed). Agle 7 din: ~₹78539.\nSuggestion: busy din ke liye extra doodh aur samose ready rakho."
+   "answer": "Agle 7 din: ~₹78,539 total (cash share assume kiya). Sabse acha din Tuesday (₹11,919), sabse kam Sunday (₹10,685).\nSuggestion: Tuesday ke liye extra batch aur doodh ready rakho."
   },
   {
    "q": "What will revenue look like during compre exams in December?",
@@ -81,12 +81,12 @@
     "forecast_revenue"
    ],
    "used": [
-    "daily_brief"
+    "forecast_revenue"
    ],
-   "tool_ok": false,
+   "tool_ok": true,
    "faithful": true,
    "actionable": true,
-   "answer": "2026-11-16: expected ₹7710-₹15100 (most likely ₹11321). Rush: 18:00, 17:00, 09:00. Prep: Sweet Lassi 15, Samosa 50, Pyaaz Kachori 40, Mirchi Bada 15, Bread Pakoda 20, Poha 10. Alerts: midday sales changed 14.3% since 2026-08-31; evening sales changed -14.4% since 2026-09-21.\nSuggestion: prep list follow karo."
+   "answer": "December 2026 (Winter break, Sem I comprehensive exams, Sem I compre tail): roz ~₹2,179-₹12,156 (most likely per day), poore mahine ~₹181,119. Mausam monthly average maana hai.\nSuggestion: Winter break ke hisaab se stock plan karo; jo din sabse kam hai (₹2,179) us din kam batch banao."
   },
   {
    "q": "Maggi ka price ₹60 karun toh kya hoga?",
@@ -99,7 +99,7 @@
    "tool_ok": true,
    "faithful": true,
    "actionable": true,
-   "answer": "Plain Maggi ₹50 -> ₹60: roz ~20.5 se ~17.7 units, profit ₹698 -> ₹780/day (range ₹725-₹839). Elasticity source: assumed typical value for street food (no price history).\nSuggestion: try it for 2 weeks and compare."
+   "answer": "Plain Maggi ₹50 -> ₹60: roz ~20.5 se ~17.7 units, profit ₹698 -> ₹780/day (range ₹725-₹839). Yeh andaaza kahan se: a typical value for street food (this item never changed price, so this is a guess).\nSuggestion: try it for 2 weeks and compare daily units."
   },
   {
    "q": "Should I raise samosa from 15 to 20 rupees?",
@@ -107,12 +107,12 @@
     "simulate_price"
    ],
    "used": [
-    "daily_brief"
+    "simulate_price"
    ],
-   "tool_ok": false,
+   "tool_ok": true,
    "faithful": true,
    "actionable": true,
-   "answer": "2026-11-16: expected ₹7710-₹15100 (most likely ₹11321). Rush: 18:00, 17:00, 09:00. Prep: Sweet Lassi 15, Samosa 50, Pyaaz Kachori 40, Mirchi Bada 15, Bread Pakoda 20, Poha 10. Alerts: midday sales changed 14.3% since 2026-08-31; evening sales changed -14.4% since 2026-09-21.\nSuggestion: prep list follow karo."
+   "answer": "Samosa ₹15 -> ₹20: roz ~35.5 se ~28.2 units, profit ₹319 -> ₹395/day (range ₹352-₹443). Yeh andaaza kahan se: a typical value for street food (this item never changed price, so this is a guess).\nSuggestion: try it for 2 weeks and compare daily units."
   },
   {
    "q": "Cutting chai 12 rupaye kar du?",
@@ -120,12 +120,12 @@
     "simulate_price"
    ],
    "used": [
-    "daily_brief"
+    "simulate_price"
    ],
-   "tool_ok": false,
+   "tool_ok": true,
    "faithful": true,
    "actionable": true,
-   "answer": "2026-11-16: expected ₹7710-₹15100 (most likely ₹11321). Rush: 18:00, 17:00, 09:00. Prep: Sweet Lassi 15, Samosa 50, Pyaaz Kachori 40, Mirchi Bada 15, Bread Pakoda 20, Poha 10. Alerts: midday sales changed 14.3% since 2026-08-31; evening sales changed -14.4% since 2026-09-21.\nSuggestion: prep list follow karo."
+   "answer": "Cutting Chai ₹10 -> ₹12: roz ~34.7 se ~30.0 units, profit ₹184 -> ₹219/day (range ₹203-₹235). Yeh andaaza kahan se: a typical value for street food (this item never changed price, so this is a guess).\nSuggestion: try it for 2 weeks and compare daily units."
   },
   {
    "q": "Maggi ka daam badhane ke baad log kitna kam khareed rahe hain?",
@@ -134,12 +134,12 @@
     "simulate_price"
    ],
    "used": [
-    "daily_brief"
+    "estimate_elasticity"
    ],
-   "tool_ok": false,
+   "tool_ok": true,
    "faithful": true,
    "actionable": true,
-   "answer": "2026-11-16: expected ₹7710-₹15100 (most likely ₹11321). Rush: 18:00, 17:00, 09:00. Prep: Sweet Lassi 15, Samosa 50, Pyaaz Kachori 40, Mirchi Bada 15, Bread Pakoda 20, Poha 10. Alerts: midday sales changed 14.3% since 2026-08-31; evening sales changed -14.4% since 2026-09-21.\nSuggestion: prep list follow karo."
+   "answer": "Plain Maggi: ₹40 -> ₹50 on 2026-09-01. daam badhne ke baad bikri kam hoti nahi dikhi; andaaza pakka nahi (9% of payments after the change were exactly ₹50, shared with other common baskets).\nSuggestion: UPI remark me item likhwao (jaise 'maggi'), tab yeh naap pakka hoga."
   },
   {
    "q": "Kaunsa combo offer chalau?",
@@ -152,7 +152,7 @@
    "tool_ok": true,
    "faithful": true,
    "actionable": true,
-   "answer": "Log yeh saath lete hain:\n- Veg Sandwich + Cold Coffee (lift 4.99, 26.0% of the time)\n- Grilled Cheese Sandwich + Cold Coffee (lift 4.79, 25.0% of the time)\n- Veg Sandwich + Cold Drink 250ml (lift 2.92, 19.8% of the time)\n- Bread Pakoda + Masala Chai (lift 1.83, 54.0% of the time)\nSuggestion: Veg Sandwich + Cold Coffee ka combo try karo."
+   "answer": "Log yeh saath lete hain:\n- Veg Sandwich lene wale 26.0% log saath me Cold Coffee bhi lete hain (25 baar dekha)\n- Grilled Cheese Sandwich lene wale 25.0% log saath me Cold Coffee bhi lete hain (18 baar dekha)\n- Veg Sandwich lene wale 19.8% log saath me Cold Drink 250ml bhi lete hain (19 baar dekha)\n- Bread Pakoda lene wale 54.0% log saath me Masala Chai bhi lete hain (75 baar dekha)\nSuggestion: Veg Sandwich + Cold Coffee ka combo thoda kam daam pe try karo."
   },
   {
    "q": "Which items do people buy together?",
@@ -165,7 +165,7 @@
    "tool_ok": true,
    "faithful": true,
    "actionable": true,
-   "answer": "Log yeh saath lete hain:\n- Veg Sandwich + Cold Coffee (lift 4.99, 26.0% of the time)\n- Grilled Cheese Sandwich + Cold Coffee (lift 4.79, 25.0% of the time)\n- Veg Sandwich + Cold Drink 250ml (lift 2.92, 19.8% of the time)\n- Bread Pakoda + Masala Chai (lift 1.83, 54.0% of the time)\nSuggestion: Veg Sandwich + Cold Coffee ka combo try karo."
+   "answer": "Log yeh saath lete hain:\n- Veg Sandwich lene wale 26.0% log saath me Cold Coffee bhi lete hain (25 baar dekha)\n- Grilled Cheese Sandwich lene wale 25.0% log saath me Cold Coffee bhi lete hain (18 baar dekha)\n- Veg Sandwich lene wale 19.8% log saath me Cold Drink 250ml bhi lete hain (19 baar dekha)\n- Bread Pakoda lene wale 54.0% log saath me Masala Chai bhi lete hain (75 baar dekha)\nSuggestion: Veg Sandwich + Cold Coffee ka combo thoda kam daam pe try karo."
   },
   {
    "q": "Chai samosa combo chal raha hai ya nahi?",
@@ -179,7 +179,7 @@
    "tool_ok": true,
    "faithful": true,
    "actionable": true,
-   "answer": "Log yeh saath lete hain:\n- Veg Sandwich + Cold Coffee (lift 4.99, 26.0% of the time)\n- Grilled Cheese Sandwich + Cold Coffee (lift 4.79, 25.0% of the time)\n- Veg Sandwich + Cold Drink 250ml (lift 2.92, 19.8% of the time)\n- Bread Pakoda + Masala Chai (lift 1.83, 54.0% of the time)\nSuggestion: Veg Sandwich + Cold Coffee ka combo try karo."
+   "answer": "Chai Samosa Combo class days me roz ~4.9 bik raha hai (UPI amounts se andaaza).\nSuggestion: board pe combo ka daam bada likho aur shaam ke rush me bolkar offer karo."
   },
   {
    "q": "Menu me se kya hatau?",
@@ -192,7 +192,7 @@
    "tool_ok": true,
    "faithful": true,
    "actionable": true,
-   "answer": "- Star: Grilled Cheese Sandwich, Plain Maggi, Cold Coffee, Veg Sandwich, Sweet Lassi\n- Plowhorse: Pyaaz Kachori, Masala Chai, Samosa, Bun Maska, Hot Coffee\n- Puzzle: Masala Veg Maggi, Cheese Maggi, Aloo Paratha, Bread Omelette, Poha\n- Dog: Kulhad Chai, Chai Samosa Combo, Water Bottle 1L, Chips Packet, Biscuit Packet\nSuggestion: Plowhorse items pe ₹5 badhao ya combo me daalo."
+   "answer": "Kam bikne aur kam kamai wale items: Kulhad Chai (2.0%), Chai Samosa Combo (1.4%), Water Bottle 1L (2.0%), Chips Packet (2.7%), Biscuit Packet (2.5%)\nAchhi kamai par kam bikri (inhe aage badhao): Masala Veg Maggi, Cheese Maggi, Aloo Paratha\nSuggestion: Kulhad Chai hatane ka socho, jab tak woh customers ko kheench nahi raha."
   },
   {
    "q": "Which items make me the most profit?",
@@ -201,12 +201,12 @@
     "sales_mix"
    ],
    "used": [
-    "daily_brief"
+    "menu_matrix"
    ],
-   "tool_ok": false,
+   "tool_ok": true,
    "faithful": true,
    "actionable": true,
-   "answer": "2026-11-16: expected ₹7710-₹15100 (most likely ₹11321). Rush: 18:00, 17:00, 09:00. Prep: Sweet Lassi 15, Samosa 50, Pyaaz Kachori 40, Mirchi Bada 15, Bread Pakoda 20, Poha 10. Alerts: midday sales changed 14.3% since 2026-08-31; evening sales changed -14.4% since 2026-09-21.\nSuggestion: prep list follow karo."
+   "answer": "Sabse zyada kamai dene wale items:\n- Grilled Cheese Sandwich: ₹53,949 kul kamai (Best seller, ek piece pe ₹40)\n- Plain Maggi: ₹43,959 kul kamai (Best seller, ek piece pe ₹34)\n- Cold Coffee: ₹35,200 kul kamai (Best seller, ek piece pe ₹29)\n- Veg Sandwich: ₹28,373 kul kamai (Best seller, ek piece pe ₹24)\n- Pyaaz Kachori: ₹27,928 kul kamai (Popular, low profit, ek piece pe ₹15)\nSuggestion: Grilled Cheese Sandwich kabhi khatam na ho; isko board pe upar rakho."
   },
   {
    "q": "Kya cheese maggi rakhna chahiye?",
@@ -215,12 +215,12 @@
     "sales_mix"
    ],
    "used": [
-    "daily_brief"
+    "menu_matrix"
    ],
-   "tool_ok": false,
+   "tool_ok": true,
    "faithful": true,
    "actionable": true,
-   "answer": "2026-11-16: expected ₹7710-₹15100 (most likely ₹11321). Rush: 18:00, 17:00, 09:00. Prep: Sweet Lassi 15, Samosa 50, Pyaaz Kachori 40, Mirchi Bada 15, Bread Pakoda 20, Poha 10. Alerts: midday sales changed 14.3% since 2026-08-31; evening sales changed -14.4% since 2026-09-21.\nSuggestion: prep list follow karo."
+   "answer": "Cheese Maggi: Good profit, few buyers (kul bikri ka 1.8%, ek piece pe kamai ₹38, kul kamai ₹19,079, 2026-09-17 to 2026-11-15 (term days only)).\nSuggestion: earns well but few people buy it: show it on the board, suggest it to customers or add it to a combo."
   },
   {
    "q": "Pichle mahine sabse zyada kya bika?",
@@ -233,7 +233,7 @@
    "tool_ok": true,
    "faithful": true,
    "actionable": true,
-   "answer": "Sabse zyada bikne wale (per day): Masala Chai 51.9, Samosa 37.3, Cutting Chai 35.8, Pyaaz Kachori 31.2, Cold Drink 250ml 22.4, Grilled Cheese Sandwich 22.0\nSuggestion: top items kabhi khatam na hon."
+   "answer": "Sabse zyada bikne wale (2026-10-17 to 2026-11-15, per day): Masala Chai 51.9, Samosa 37.3, Cutting Chai 35.8, Pyaaz Kachori 31.2, Cold Drink 250ml 22.4, Grilled Cheese Sandwich 22.0\nSuggestion: Masala Chai aur Samosa kabhi khatam na hon; rush se pehle check karo."
   },
   {
    "q": "How much cold coffee did I sell last month?",
@@ -246,7 +246,7 @@
    "tool_ok": true,
    "faithful": true,
    "actionable": true,
-   "answer": "Sabse zyada bikne wale (per day): Masala Chai 51.9, Samosa 37.3, Cutting Chai 35.8, Pyaaz Kachori 31.2, Cold Drink 250ml 22.4, Grilled Cheese Sandwich 22.0\nSuggestion: top items kabhi khatam na hon."
+   "answer": "Cold Coffee: 572 units (19.7/day, 4.3% of units), ~₹28,609 in 2026-10-17 to 2026-11-15\nSuggestion: yeh UPI amounts se andaaza hai (+/-25%); ek hafta haath se gin ke check karo."
   },
   {
    "q": "Shaam ki sales kyu giri?",
@@ -261,7 +261,7 @@
    "tool_ok": true,
    "faithful": true,
    "actionable": true,
-   "answer": "midday (11-16h) sales 14.3% badle 2026-08-31 se (₹3732 -> ₹4265 per day UPI).\nSuggestion: us waqt kya naya hua (competitor, timing) check karo; shaam ke liye offer socho."
+   "answer": "evening (16-19h) ki sale 2026-09-21 se -14.4% badli (₹3,894 -> ₹3,333 per day UPI).\nSuggestion: us din ke aas-paas kya badla (naya competitor, timing, menu) check karo."
   },
   {
    "q": "Why were sales lower in October than September?",
@@ -270,12 +270,12 @@
     "detect_shifts"
    ],
    "used": [
-    "detect_shifts"
+    "compare_periods"
    ],
    "tool_ok": true,
    "faithful": true,
    "actionable": true,
-   "answer": "midday (11-16h) sales 14.3% badle 2026-08-31 se (₹3732 -> ₹4265 per day UPI).\nSuggestion: us waqt kya naya hua (competitor, timing) check karo; shaam ke liye offer socho."
+   "answer": "September vs October: roz ki UPI sale ₹10,535 -> ₹9,922 (-5.8%).\nSabse bade kaaran: evening sales -12.7%, average bill -3.7%, payments per day -2.2%.\nContext: academic calendar differs: A had 26 classes, 4 fest days; B had 22 classes, 6 midsem, 3 fest days; rainy days: 6 vs 1.\nCustomers: 762 naye, 826 wapas nahi aaye.\nSuggestion: sabse bada kaaran 'evening sales' hai; agar woh calendar ki wajah se hai toh normal hai, warna us par kaam karo."
   },
   {
    "q": "June me sales itni kam kyu thi?",
@@ -285,12 +285,12 @@
     "hourly_profile"
    ],
    "used": [
-    "detect_shifts"
+    "compare_periods"
    ],
-   "tool_ok": false,
+   "tool_ok": true,
    "faithful": true,
    "actionable": true,
-   "answer": "midday (11-16h) sales 14.3% badle 2026-08-31 se (₹3732 -> ₹4265 per day UPI).\nSuggestion: us waqt kya naya hua (competitor, timing) check karo; shaam ke liye offer socho."
+   "answer": "May vs June: roz ki UPI sale ₹4,474 -> ₹1,946 (-56.5%).\nSabse bade kaaran: evening sales -64.4%, payments per day -57.3%, midday sales -52.4%.\nContext: academic calendar differs: A had 15 summer break, 10 compre, 6 compre tail days; B had 30 summer break days; rainy days: 2 vs 5.\nCustomers: 270 naye, 1121 wapas nahi aaye.\nSuggestion: sabse bada kaaran 'evening sales' hai; agar woh calendar ki wajah se hai toh normal hai, warna us par kaam karo."
   },
   {
    "q": "Kis time sabse zyada bheed hoti hai?",
@@ -303,7 +303,7 @@
    "tool_ok": true,
    "faithful": true,
    "actionable": true,
-   "answer": "Rush: 17:00, 18:00, 09:00. Slow: 15:00, 16:00, 14:00.\nSuggestion: slow hours me chhota offer (chai + biscuit) chalao."
+   "answer": "Sabse zyada bheed: 17:00, 18:00, 09:00 (17:00 pe roz ~25.9 UPI payments). Sabse kam: 15:00, 16:00, 14:00 (15:00 pe ~13.5).\nSuggestion: 17:00 se pehle batch ready rakho; 15:00 me chhota offer chalao."
   },
   {
    "q": "Should I open at 8 am?",
@@ -312,12 +312,12 @@
     "hourly_profile"
    ],
    "used": [
-    "daily_brief"
+    "simulate_hours"
    ],
-   "tool_ok": false,
+   "tool_ok": true,
    "faithful": true,
    "actionable": true,
-   "answer": "2026-11-16: expected ₹7710-₹15100 (most likely ₹11321). Rush: 18:00, 17:00, 09:00. Prep: Sweet Lassi 15, Samosa 50, Pyaaz Kachori 40, Mirchi Bada 15, Bread Pakoda 20, Poha 10. Alerts: midday sales changed 14.3% since 2026-08-31; evening sales changed -14.4% since 2026-09-21.\nSuggestion: prep list follow karo."
+   "answer": "08:00 wala ghanta jodne se roz ~₹594 extra (range ₹297-₹713); method: a guess: about 45% of the sales of the busier hour next to it, since fewer people come at the start and end of the day.\nSuggestion: 2 hafte try karo; agar roz ₹297 se kam aaye toh band kar do."
   },
   {
    "q": "Shaam 7 baje ke baad bhi khula rakhu?",
@@ -326,26 +326,28 @@
     "hourly_profile"
    ],
    "used": [
-    "daily_brief"
+    "simulate_hours"
    ],
-   "tool_ok": false,
+   "tool_ok": true,
    "faithful": true,
    "actionable": true,
-   "answer": "2026-11-16: expected ₹7710-₹15100 (most likely ₹11321). Rush: 18:00, 17:00, 09:00. Prep: Sweet Lassi 15, Samosa 50, Pyaaz Kachori 40, Mirchi Bada 15, Bread Pakoda 20, Poha 10. Alerts: midday sales changed 14.3% since 2026-08-31; evening sales changed -14.4% since 2026-09-21.\nSuggestion: prep list follow karo."
+   "answer": "19:00 wala ghanta jodne se roz ~₹778 extra (range ₹389-₹934); method: a guess: about 45% of the sales of the busier hour next to it, since fewer people come at the start and end of the day.\nSuggestion: 2 hafte try karo; agar roz ₹389 se kam aaye toh band kar do."
   },
   {
    "q": "Exam ke time shaam ko kya zyada bikta hai?",
    "expected": [
     "hourly_profile",
-    "sales_mix"
+    "sales_mix",
+    "sales_by_condition"
    ],
    "used": [
-    "hourly_profile"
+    "hourly_profile",
+    "sales_by_condition"
    ],
    "tool_ok": true,
    "faithful": true,
    "actionable": true,
-   "answer": "Rush: 17:00, 18:00, 09:00. Slow: 15:00, 16:00, 14:00.\nSuggestion: slow hours me chhota offer (chai + biscuit) chalao."
+   "answer": "mid-sem and compre days vs class days (32 din, bheed 17:00, 18:00, 16:00 pe): roz ki kamai ₹11,046 vs ₹11,821.\nZyada bikta hai:\n- Masala Veg Maggi: 9.0/day vs 8.7 (1.03x)\n- Plain Maggi: 20.4/day vs 20.5 (1.0x)\n- Sweet Lassi: 12.7/day vs 12.9 (0.98x)\n- Veg Sandwich: 18.5/day vs 18.9 (0.98x)\n- Aloo Paratha: 11.3/day vs 11.7 (0.97x)\nSuggestion: aise din Masala Veg Maggi ka stock ~1.03x rakho."
   },
   {
    "q": "Mere regular customers kaun hain?",
@@ -358,7 +360,7 @@
    "tool_ok": true,
    "faithful": true,
    "actionable": true,
-   "answer": "5748 UPI customers, 93 regulars (14.6% of UPI sales). 10 regulars 3 hafte se nahi aaye. Pichle 30 din me 407 naye customers.\nSuggestion: jo regulars nahi aa rahe unhe agli baar free cutting chai do."
+   "answer": "93 regulars, UPI sale ka 14.6%. Top customers:\n- Vivek Rawat: 257 visits, ₹13,825\n- ARVIND SEN: 195 visits, ₹11,760\n- Nikhil Saini: 186 visits, ₹11,370\n- Khushi Bisht: 196 visits, ₹10,745\n- Ishita Mittal: 155 visits, ₹8,895\nSuggestion: top regulars ke liye loyalty card (10 chai pe 1 free) try karo."
   },
   {
    "q": "Kaun se regular aana band ho gaye?",
@@ -371,7 +373,7 @@
    "tool_ok": true,
    "faithful": true,
    "actionable": true,
-   "answer": "5748 UPI customers, 93 regulars (14.6% of UPI sales). 10 regulars 3 hafte se nahi aaye. Pichle 30 din me 407 naye customers.\nSuggestion: jo regulars nahi aa rahe unhe agli baar free cutting chai do."
+   "answer": "10 regulars 3 hafte se nahi aaye:\n- Anirudh Gupta (pehle 3.4/week, aakhri baar 2026-05-07)\n- Varun Singh (pehle 3.1/week, aakhri baar 2026-05-14)\n- ANANYA PATIL (pehle 2.0/week, aakhri baar 2026-05-09)\n- Simran Patel (pehle 1.6/week, aakhri baar 2026-05-02)\n- Anika Rathore (pehle 1.8/week, aakhri baar 2026-05-14)\nSuggestion: Anirudh Gupta jaise regulars ko phone/WhatsApp pe chhota offer bhejo."
   },
   {
    "q": "Pichle mahine kitne naye customers aaye?",
@@ -379,12 +381,12 @@
     "customer_insights"
    ],
    "used": [
-    "prep_plan"
+    "customer_insights"
    ],
-   "tool_ok": false,
+   "tool_ok": true,
    "faithful": true,
    "actionable": true,
-   "answer": "Kal (2026-11-16) ke liye prep:\n- Sweet Lassi: 15 banao (demand 10-16, most likely 14)\n- Samosa: 50 banao (demand 29-50, most likely 43)\n- Pyaaz Kachori: 40 banao (demand 20-40, most likely 30)\n- Mirchi Bada: 15 banao (demand 10-18, most likely 14)\n- Bread Pakoda: 20 banao (demand 11-19, most likely 15)\n- Poha: 10 banao (demand 4-7, most likely 6)\nSuggestion: in numbers se shuru karo; jis din jaldi khatam ho, time note karo."
+   "answer": "Pichle 30 din me 407 naye UPI customers aaye (kul 5748).\nSuggestion: naye customers ko doosri visit pe chhota discount do."
   },
   {
    "q": "Kya kabhi UPI band hua tha?",
@@ -397,7 +399,7 @@
    "tool_ok": true,
    "faithful": true,
    "actionable": true,
-   "answer": "4 baar UPI busy time pe ruka: 2026-01-23, 2026-03-14, 2026-04-11, 2026-08-26\nSuggestion: cash ke liye chhutta paisa ready rakho."
+   "answer": "4 baar busy time pe UPI ruka:\n- 2026-01-23 (17:00, ~27 payments miss)\n- 2026-03-14 (14:00, ~8 payments miss)\n- 2026-04-11 (11:00, 12:00, ~27 payments miss)\n- 2026-08-26 (16:00, ~17 payments miss)\nSuggestion: dusra UPI QR (alag bank) aur chhutta cash ready rakho."
   },
   {
    "q": "Saal bhar me total kitni kamai hui?",
@@ -405,12 +407,12 @@
     "overview"
    ],
    "used": [
-    "daily_brief"
+    "overview"
    ],
-   "tool_ok": false,
+   "tool_ok": true,
    "faithful": true,
    "actionable": true,
-   "answer": "2026-11-16: expected ₹7710-₹15100 (most likely ₹11321). Rush: 18:00, 17:00, 09:00. Prep: Sweet Lassi 15, Samosa 50, Pyaaz Kachori 40, Mirchi Bada 15, Bread Pakoda 20, Poha 10. Alerts: midday sales changed 14.3% since 2026-08-31; evening sales changed -14.4% since 2026-09-21.\nSuggestion: prep list follow karo."
+   "answer": "2025-11-16 to 2026-11-15: kul kamai ~₹3,392,287 (range ₹3,102,701-₹3,741,493), jisme UPI ₹2,544,215. 359 din khula; class ke din roz ~₹11,821.\nSuggestion: cash ka asli hissa ek hafta gin lo, range chhoti ho jayegi."
   },
   {
    "q": "Cash kitna hota hoga?",
@@ -418,12 +420,12 @@
     "overview"
    ],
    "used": [
-    "daily_brief"
+    "overview"
    ],
-   "tool_ok": false,
+   "tool_ok": true,
    "faithful": true,
    "actionable": true,
-   "answer": "2026-11-16: expected ₹7710-₹15100 (most likely ₹11321). Rush: 18:00, 17:00, 09:00. Prep: Sweet Lassi 15, Samosa 50, Pyaaz Kachori 40, Mirchi Bada 15, Bread Pakoda 20, Poha 10. Alerts: midday sales changed 14.3% since 2026-08-31; evening sales changed -14.4% since 2026-09-21.\nSuggestion: prep list follow karo."
+   "answer": "UPI se ₹2,544,215 aaye. Cash dikhta nahi; 25% maan kar cash ~₹848,072 (range 18%-32%).\nSuggestion: ek hafta roz ka cash gin lo, phir yeh andaaza pakka ho jayega."
   },
   {
    "q": "Kal ka plan batao",
@@ -433,12 +435,12 @@
     "forecast_revenue"
    ],
    "used": [
-    "forecast_revenue"
+    "daily_brief"
    ],
    "tool_ok": true,
    "faithful": true,
    "actionable": true,
-   "answer": "2026-11-16 (Sem I classes): sales ₹7710-₹15100, most likely ₹11321 (cash share assumed). Agle 7 din: ~₹78539.\nSuggestion: busy din ke liye extra doodh aur samose ready rakho."
+   "answer": "2026-11-16 (Sem I classes): sale ₹7,710-₹15,100, most likely ₹11,321. Rush: 18:00, 17:00, 09:00.\nPrep: Sweet Lassi 15, Samosa 50, Pyaaz Kachori 40, Mirchi Bada 15, Bread Pakoda 20, Poha 10.\nAlerts: midday sales changed 14.3% since 2026-08-31; evening sales changed -14.4% since 2026-09-21.\nSuggestion: 18:00 se pehle prep poora rakho."
   },
   {
    "q": "Give me tomorrow's brief",
@@ -446,12 +448,12 @@
     "daily_brief"
    ],
    "used": [
-    "forecast_revenue"
+    "daily_brief"
    ],
-   "tool_ok": false,
+   "tool_ok": true,
    "faithful": true,
    "actionable": true,
-   "answer": "2026-11-16 (Sem I classes): sales ₹7710-₹15100, most likely ₹11321 (cash share assumed). Agle 7 din: ~₹78539.\nSuggestion: busy din ke liye extra doodh aur samose ready rakho."
+   "answer": "2026-11-16 (Sem I classes): sale ₹7,710-₹15,100, most likely ₹11,321. Rush: 18:00, 17:00, 09:00.\nPrep: Sweet Lassi 15, Samosa 50, Pyaaz Kachori 40, Mirchi Bada 15, Bread Pakoda 20, Poha 10.\nAlerts: midday sales changed 14.3% since 2026-08-31; evening sales changed -14.4% since 2026-09-21.\nSuggestion: 18:00 se pehle prep poora rakho."
   },
   {
    "q": "Oasis fest me kitna maal lagega?",
@@ -459,21 +461,8 @@
     "forecast_items",
     "forecast_revenue",
     "compare_periods",
-    "sales_mix"
-   ],
-   "used": [
-    "daily_brief"
-   ],
-   "tool_ok": false,
-   "faithful": true,
-   "actionable": true,
-   "answer": "2026-11-16: expected ₹7710-₹15100 (most likely ₹11321). Rush: 18:00, 17:00, 09:00. Prep: Sweet Lassi 15, Samosa 50, Pyaaz Kachori 40, Mirchi Bada 15, Bread Pakoda 20, Poha 10. Alerts: midday sales changed 14.3% since 2026-08-31; evening sales changed -14.4% since 2026-09-21.\nSuggestion: prep list follow karo."
-  },
-  {
-   "q": "Garmi me kya zyada bikta hai?",
-   "expected": [
     "sales_mix",
-    "compare_periods"
+    "sales_by_condition"
    ],
    "used": [
     "sales_mix"
@@ -481,7 +470,22 @@
    "tool_ok": true,
    "faithful": true,
    "actionable": true,
-   "answer": "Sabse zyada bikne wale (per day): Masala Chai 51.9, Samosa 37.3, Cutting Chai 35.8, Pyaaz Kachori 31.2, Cold Drink 250ml 22.4, Grilled Cheese Sandwich 22.0\nSuggestion: top items kabhi khatam na hon."
+   "answer": "Pichla Oasis (cultural fest) (2026-10-29 to 2026-11-01) me roz:\n- Masala Chai: 77/day (normal 48, 1.6x)\n- Samosa: 55/day (normal 34, 1.6x)\n- Cutting Chai: 51/day (normal 33, 1.6x)\n- Pyaaz Kachori: 46/day (normal 29, 1.6x)\n- Grilled Cheese Sandwich: 43/day (normal 20, 2.2x)\n- Plain Maggi: 35/day (normal 20, 1.7x)\nSuggestion: fest ke din Masala Chai ka ~77 ka stock rakho."
+  },
+  {
+   "q": "Garmi me kya zyada bikta hai?",
+   "expected": [
+    "sales_by_condition",
+    "sales_mix",
+    "compare_periods"
+   ],
+   "used": [
+    "sales_by_condition"
+   ],
+   "tool_ok": true,
+   "faithful": true,
+   "actionable": true,
+   "answer": "term days with max temp >= 36C vs other term days (41 din): roz ki kamai ₹12,409 vs ₹12,298.\nZyada bikta hai:\n- Cold Coffee: 20.6/day vs 11.4 (1.81x)\n- Nimbu Shikanji: 16.7/day vs 13.0 (1.28x)\n- Cold Drink 250ml: 26.9/day vs 21.0 (1.28x)\n- Water Bottle 1L: 11.5/day vs 9.0 (1.28x)\n- Adrak Elaichi Chai: 17.6/day vs 14.3 (1.23x)\nSuggestion: aise din Cold Coffee ka stock ~1.81x rakho."
   },
   {
    "q": "Doodh kitna mangwaun kal?",
@@ -496,7 +500,7 @@
    "tool_ok": true,
    "faithful": true,
    "actionable": true,
-   "answer": "Kal (2026-11-16) ke liye prep:\n- Sweet Lassi: 15 banao (demand 10-16, most likely 14)\n- Samosa: 50 banao (demand 29-50, most likely 43)\n- Pyaaz Kachori: 40 banao (demand 20-40, most likely 30)\n- Mirchi Bada: 15 banao (demand 10-18, most likely 14)\n- Bread Pakoda: 20 banao (demand 11-19, most likely 15)\n- Poha: 10 banao (demand 4-7, most likely 6)\nSuggestion: in numbers se shuru karo; jis din jaldi khatam ho, time note karo."
+   "answer": "Kal ~124 garam drinks (busy din 153 tak): Cutting Chai 36, Masala Chai 50, Adrak Elaichi Chai 14, Kulhad Chai 8, Hot Coffee 16\nSuggestion: doodh in cups ke hisaab se mangwao (aapki recipe ka ml per cup x cups); busy din ke liye 153 cups ka doodh rakho."
   }
  ]
 }

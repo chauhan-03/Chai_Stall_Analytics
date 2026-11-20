@@ -18,3 +18,22 @@ if PROFILE not in ("chai", "redi"):
 DATA = ROOT / "data" if PROFILE == "chai" else ROOT / "data" / PROFILE
 RAW, KEY = DATA / "raw", DATA / "answer_key"
 EVAL_OUT = ROOT / "eval" if PROFILE == "chai" else ROOT / "eval" / PROFILE
+
+
+def load_env(path=ROOT / ".env"):
+    """Read KEY=VALUE lines from the project's .env file (API keys) into the environment.
+    Values already set in the shell win. .env is git-ignored, so keys are never committed."""
+    try:
+        lines = Path(path).read_text().splitlines()
+    except OSError:
+        return
+    for line in lines:
+        line = line.strip()
+        if not line or line.startswith("#") or "=" not in line:
+            continue
+        k, v = line.split("=", 1)
+        k = k.replace("export ", "").strip()
+        os.environ.setdefault(k, v.strip().strip('"').strip("'"))
+
+
+load_env()

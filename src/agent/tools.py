@@ -10,10 +10,18 @@ TOOLS = [
      "input_schema": {"type": "object", "properties": {}}},
     {"name": "sales_mix",
      "description": "Estimated units and revenue per menu item over a period (default last 30 days). "
-                    "Use for 'what sells most', 'kitne samose bike'.",
+                    "Use for 'what sells most', 'kitne samose bike'. For weather/season/exam/fest/weekend "
+                    "differences use sales_by_condition instead.",
      "input_schema": {"type": "object", "properties": {
          "start": DATE, "end": DATE, "days": {"type": "integer", "description": "Window length if no start"},
          "top": {"type": "integer"}}}},
+    {"name": "sales_by_condition",
+     "description": "Which items sell more and less on hot, cold or rainy days, during exams or fests, or on "
+                    "weekends, compared with comparable normal days. Use for 'garmi me kya bikta hai', "
+                    "'baarish me', 'exam ke time', 'fest me kitna maal'.",
+     "input_schema": {"type": "object", "properties": {
+         "condition": {"type": "string", "enum": ["hot", "cold", "rain", "exam", "fest", "weekend"]},
+         "top": {"type": "integer"}}, "required": ["condition"]}},
     {"name": "hourly_profile",
      "description": "Payments and revenue by hour of day; busiest and slowest hours. Optional academic phase "
                     "filter: classes, midsem, compre, fest, summer_break, winter_break.",
@@ -39,8 +47,10 @@ TOOLS = [
                     "lassi) to prepare for a day, using the newsvendor rule. Use for 'kal kitne banau'.",
      "input_schema": {"type": "object", "properties": {"day": DATE}}},
     {"name": "menu_matrix",
-     "description": "Menu engineering: classifies items as Star, Plowhorse, Puzzle or Dog by popularity "
-                    "and margin, with an action for each.",
+     "description": "Menu check: puts every item in one of four groups by how much it sells and how much "
+                    "profit it makes per piece (Best seller, Popular low profit, Good profit few buyers, Weak "
+                    "item), with what to do for each. Use for 'menu me se kya hatau', 'what should I remove', "
+                    "'which items make the most profit', 'should I keep X'.",
      "input_schema": {"type": "object", "properties": {"days": {"type": "integer"}}}},
     {"name": "estimate_elasticity",
      "description": "Estimated price elasticity for an item that had a price change in the menu history.",

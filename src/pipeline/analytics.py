@@ -5,6 +5,8 @@ use them as tools and the app can render them.
 """
 from __future__ import annotations
 
+import copy
+import functools
 import hashlib
 import json
 import math
@@ -25,6 +27,19 @@ from .menu import Menu
 ROOT = Path(__file__).resolve().parents[2]
 SLOT_HOURS = {"morning": (6, 10), "midday": (11, 15), "evening": (16, 19), "night": (20, 23), "late": (24, 26)}
 BATCH_SIZE = {"SAMOSA": 10, "KACHORI": 10}
+
+
+def _memo(fn):
+    """Remember a tool's result per arguments. The data never changes after loading, so a repeated
+    question (or a Streamlit rerun) is answered instantly. Returns a copy so callers can't alter it."""
+    @functools.wraps(fn)
+    def wrapper(self, *args, **kwargs):
+        key = (fn.__name__, json.dumps([args, kwargs], default=str, sort_keys=True))
+        cache = self.__dict__.setdefault("_memo_cache", {})
+        if key not in cache:
+            cache[key] = fn(self, *args, **kwargs)
+        return copy.deepcopy(cache[key])
+    return wrapper
 
 
 def _r(x, nd=0):
@@ -61,9 +76,21 @@ class StallAnalytics:
         h.update(str(self.use_owner_prior).encode())
         return h.hexdigest()[:12]
 
+    def _seed(self, target):
+        """Fresh download: unpack the shipped starter cache (data/starter_cache/*.pkl.gz) so the
+        sample stall opens in seconds instead of re-processing for a few minutes."""
+        src = ROOT / "data" / "starter_cache" / (target.name + ".gz")
+        if not target.exists() and src.exists():
+            import gzip
+            try:
+                target.write_bytes(gzip.decompress(src.read_bytes()))
+            except OSError:
+                pass
+
     def _load(self):
         self.cache_dir.mkdir(parents=True, exist_ok=True)
         cache = self.cache_dir / f"decomposed_{self._fingerprint()}.pkl"
+        self._seed(cache)
         if cache.exists():
             st = pickle.loads(cache.read_bytes())
         else:
@@ -145,6 +172,7 @@ class StallAnalytics:
         raise ValueError(f"Unknown item '{name}'. Menu items: {', '.join(self.menu.names.values())}")
 
     # ------------------------------------------------------------------ tools
+    @_memo
     def overview(self):
         d = self.daily
         open_d = d[~d.closed]
@@ -164,6 +192,7 @@ class StallAnalytics:
             "item_prior_used": self.prior_used,
         }
 
+    @_memo
     def sales_mix(self, start=None, end=None, days=30, top=None):
         a, b = self._period(start, end, days)
         m = self._mask(a, b)
@@ -180,6 +209,7 @@ class StallAnalytics:
                 "note": "Units are estimated from UPI payment amounts and scaled up for cash; "
                         "treat individual numbers as +/- 25%."}
 
+    @_memo
     def hourly_profile(self, start=None, end=None, days=60, phase=None):
         a, b = self._period(start, end, days)
         s = self.sales[(self.sales.business_date >= a) & (self.sales.business_date <= b)]
@@ -198,6 +228,7 @@ class StallAnalytics:
                                   est_revenue_per_day=_r(r.upi_sales * self.scale)) for h, r in g.iterrows()],
                 "busiest_hours": [fmt(h) for h in top], "slowest_hours": [fmt(h) for h in slow]}
 
+    @_memo
     def combos(self, start=None, end=None, days=365, top=10, min_pair=5):
         """Which items are bought together.
 
@@ -229,7 +260,7 @@ class StallAnalytics:
             z = 1.28
             lb = (p_hat + z * z / (2 * m) - z * math.sqrt(p_hat * (1 - p_hat) / m + z * z / (4 * m * m))) / (1 + z * z / m)
             rules.append(dict(if_buys=self.menu.names[ante], also_buys=self.menu.names[cons], times_seen=c,
-                              confidence=_r(p_hat * 100, 1), confidence_lower_bound=_r(lb * 100, 1),
+                              how_often_pct=_r(p_hat * 100, 1), how_often_pct_low=_r(lb * 100, 1),
                               lift=_r(lift, 2)))
         rules.sort(key=lambda r: (-r["lift"] * math.log1p(r["times_seen"])))
         # explicit combo item uptake
@@ -239,9 +270,8 @@ class StallAnalytics:
             combo = dict(item=self.menu.names["COMBO_CS"], est_units_per_class_day=_r(self.units.loc[m, "COMBO_CS"].mean(), 1))
         return {"period": f"{a} to {b}", "labelled_baskets": n, "rules": rules[:top],
                 "existing_combo": combo,
-                "method": "association rules (support, confidence, lift) on baskets customers described in "
-                          "UPI remarks; confidence lower bound = Wilson 80%",
-                "caveat": "Only ~5% of customers write remarks; rules are directional, check with the owner."}
+                "method": "counted from payments where customers typed what they bought",
+                "caveat": "Only about 5 in 100 customers type what they bought, so treat these pairs as a hint."}
 
     # ------------------------------------------------------------------ forecasting
     def _future_frame(self, days_ahead, start=None):
@@ -254,14 +284,33 @@ class StallAnalytics:
             f["tmax"], f["rain_mm"], f["heatwave"] = 30.0, 0.0, 0.0
         return f
 
-    def _fit(self, key, y, train_end=None):
-        fr = self.frame.copy()
-        fr["level"] = add_level(fr, y)
-        mask = np.ones(len(fr), bool) if train_end is None else (fr.date <= train_end).values
-        model = QuantileForecaster().fit(fr[mask].reset_index(drop=True), np.asarray(y)[mask])
-        last_level = fr["level"][mask].iloc[-1]
-        return model, last_level
+    def _model_file(self):
+        return self.cache_dir / f"models_{self._fingerprint()}_{self.cash_share:.3f}.pkl"
 
+    def _fit(self, key, y, train_end=None):
+        """Train a forecaster once per (target, cutoff); kept in memory and on disk, so neither
+        repeated questions nor app restarts retrain it."""
+        if not hasattr(self, "_fits"):
+            f = self._model_file()
+            self._seed(f)
+            try:
+                self._fits = pickle.loads(f.read_bytes()) if f.exists() else {}
+            except Exception:
+                self._fits = {}
+        ck = (key, str(train_end))
+        if ck not in self._fits:
+            fr = self.frame.copy()
+            fr["level"] = add_level(fr, y)
+            mask = np.ones(len(fr), bool) if train_end is None else (fr.date <= train_end).values
+            model = QuantileForecaster().fit(fr[mask].reset_index(drop=True), np.asarray(y)[mask])
+            self._fits[ck] = (model, fr["level"][mask].iloc[-1])
+            try:
+                self._model_file().write_bytes(pickle.dumps(self._fits))
+            except OSError:
+                pass
+        return self._fits[ck]
+
+    @_memo
     def forecast_revenue(self, days=7, start=None):
         model, lvl = self._fit("revenue", self.daily.upi_sales.values)
         f = self._future_frame(days, start)
@@ -277,13 +326,14 @@ class StallAnalytics:
                              weather=f"{fr.tmax:.0f}C ({fr.weather_source})" if "weather_source" in f else None))
         tot = sum(r["revenue_p50"] for r in rows)
         return {"days": rows, "total_p50": tot,
-                "method": "gradient-boosted quantile model on UPI sales; P10 uses low cash share, P90 high"}
+                "method": "learned from past daily sales, calendar and weather; the low end assumes less cash, the high end more"}
 
     def _item_model(self, iid):
         if iid not in self._item_models:
             self._item_models[iid] = self._fit(iid, self.units[iid].values)
         return self._item_models[iid]
 
+    @_memo
     def forecast_items(self, items=None, days=1, start=None):
         items = [self._resolve_item(i) for i in (items or self.ids)]
         f = self._future_frame(days, start)
@@ -308,6 +358,7 @@ class StallAnalytics:
             return p50 + (p50 - p10) * z / z10
         return p50 + (p90 - p50) * z / z10
 
+    @_memo
     def prep_plan(self, day=None, salvage_share=0.0):
         day = pd.to_datetime(day).date() if day else self.last + timedelta(days=1)
         uses = self.menu.stock_of                          # dish -> batch item it uses up
@@ -332,12 +383,13 @@ class StallAnalytics:
                              recommended_prep=q_rounded, batch_size=bs, critical_ratio=_r(cr, 2),
                              margin_per_unit=_r(cu, 1), cost_per_unit=_r(c, 1)))
         return {"date": str(day), "items": rows,
-                "method": "newsvendor: prepare up to the demand quantile = margin / (margin + cost of a "
-                          "wasted unit); rounded up to batch size",
-                "caveat": "Demand is learned from sales; on sell-out days true demand was higher, so "
-                          "treat P90 as a floor for big days."}
+                "method": "make enough to cover most days without too much waste; items with more profit "
+                          "per piece get a bigger safety margin; rounded up to the batch size",
+                "caveat": "On days an item sold out, more people wanted it than the sales show, so on big days "
+                          "make a little more than the high end."}
 
     # ------------------------------------------------------------------ menu engineering
+    @_memo
     def menu_matrix(self, start=None, end=None, days=60):
         a, b = self._period(start, end, days)
         m = self._mask(a, b) & (self.daily.phase.values != "summer_break") & (
@@ -356,12 +408,16 @@ class StallAnalytics:
         cm_cut = (df.cm * df.units).sum() / df.units.sum()
         def cls(r):
             hp, hc = r.mix_pct >= pop_cut, r.cm >= cm_cut
-            return "Star" if hp and hc else "Plowhorse" if hp else "Puzzle" if hc else "Dog"
+            return ("Best seller" if hp and hc else "Popular, low profit" if hp else
+                    "Good profit, few buyers" if hc else "Weak item")
         df["class"] = df.apply(cls, axis=1)
-        advice = {"Star": "keep quality and visibility; don't discount",
-                  "Plowhorse": "popular but thin margin: small price rise or pair with a high-margin item",
-                  "Puzzle": "good margin but few buyers: promote, rename, put in a combo",
-                  "Dog": "low margin and few buyers: simplify or remove unless it drives traffic"}
+        advice = {"Best seller": "keep it as it is and never let it run out; don't give discounts",
+                  "Popular, low profit": "sells a lot but earns little: raise the price a little or sell it "
+                                         "together with a higher-profit item",
+                  "Good profit, few buyers": "earns well but few people buy it: show it on the board, suggest "
+                                             "it to customers or add it to a combo",
+                  "Weak item": "sells little and earns little: think about removing it, unless people come "
+                               "to the stall for it"}
         df["action"] = df["class"].map(advice)
         df["total_contribution"] = df.cm * df.units
         out = df.sort_values("total_contribution", ascending=False)
@@ -370,9 +426,51 @@ class StallAnalytics:
                 "items": [dict(item=r["item"], class_=r["class"], mix_pct=_r(r.mix_pct, 1), price=_r(r.price),
                                margin=_r(r.cm, 1), contribution=_r(r.total_contribution), action=r.action)
                           for _, r in out.iterrows()],
-                "method": "Kasavana-Smith menu engineering matrix"}
+                "method": "items sorted by how much they sell and how much they earn per piece"}
+
+    CONDITIONS = ("hot", "cold", "rain", "exam", "fest", "weekend")
+
+    @_memo
+    def sales_by_condition(self, condition, top=6):
+        """Which items sell more (and less) on hot / cold / rainy / exam / fest / weekend days than on
+        comparable normal days. Per-day averages of estimated units over open days."""
+        if condition not in self.CONDITIONS:
+            raise ValueError(f"condition must be one of {', '.join(self.CONDITIONS)}")
+        d = self.daily
+        term = d.phase.isin(["classes", "midsem", "fest"]).values
+        cls = (d.phase == "classes").values
+        t = d["tmax"].values if "tmax" in d else np.full(len(d), 30.0)
+        rain = d["rain_mm"].values if "rain_mm" in d else np.zeros(len(d))
+        dow = np.array([x.weekday() for x in d.index])
+        defs = {"hot": ((t >= 36) & term, (t < 36) & term, "term days with max temp >= 36C vs other term days"),
+                "cold": ((t < 24) & term, (t >= 24) & term, "term days with max temp < 24C vs other term days"),
+                "rain": ((rain > 2) & term, (rain <= 2) & term, "term days with > 2 mm rain vs dry term days"),
+                "exam": (d.phase.isin(["midsem", "compre"]).values, cls, "mid-sem and compre days vs class days"),
+                "fest": ((d.phase == "fest").values, cls, "fest days (APOGEE, BOSM, Oasis) vs class days"),
+                "weekend": (cls & (dow >= 5), cls & (dow < 5), "Sat/Sun class days vs weekday class days")}
+        m_a, m_b, definition = defs[condition]
+        opn = ~d.closed.values
+        m_a, m_b = m_a & opn, m_b & opn
+        if m_a.sum() == 0 or m_b.sum() == 0:
+            return {"condition": condition, "definition": definition, "days": int(m_a.sum()),
+                    "note": "not enough days of this kind in the data"}
+        a, b = self.units[m_a].mean(), self.units[m_b].mean()
+        rows = []
+        for iid in self.ids:
+            if np.isnan(self._price(iid)) or b[iid] < 2:
+                continue
+            rows.append(dict(item=self.menu.names[iid], per_day=_r(a[iid], 1), normal_per_day=_r(b[iid], 1),
+                             ratio=_r(a[iid] / b[iid], 2)))
+        rows.sort(key=lambda r: -r["ratio"])
+        return {"condition": condition, "definition": definition, "days": int(m_a.sum()),
+                "comparison_days": int(m_b.sum()),
+                "avg_daily_revenue": [_r(d.revenue_est.values[m_a].mean()), _r(d.revenue_est.values[m_b].mean())],
+                "sells_more": rows[:top], "sells_less": rows[::-1][:3],
+                "note": "Counts are estimates from UPI amounts with cash added (could be 25% off). ratio = how many times "
+                        "normal_per_day."}
 
     # ------------------------------------------------------------------ elasticity / what-if
+    @_memo
     def estimate_elasticity(self, item, window=28, n_boot=300):
         iid = self._resolve_item(item)
         h = self.menu.hist[(self.menu.hist.item_id == iid) & (self.menu.hist.event == "price_change")]
@@ -414,11 +512,12 @@ class StallAnalytics:
                     control=[self.menu.names[c] for c in ctrl][:6],
                     method="difference-in-differences vs unchanged items, class days only")
 
+    @_memo
     def simulate_price(self, item, new_price, days=28):
         iid = self._resolve_item(item)
         p0, c = self._price(iid), self.menu.cost[iid]
         e = self.estimate_elasticity(iid)
-        source = "own price history"
+        source = "its own past price change"
         if e is None or e["elasticity"] is None or e["elasticity"] <= 0 or not e.get("reliable", True):
             same = [x for x in self.menu.hist.item_id.unique()
                     if self.menu.category.get(x) == self.menu.category[iid] and x != iid]
@@ -427,10 +526,10 @@ class StallAnalytics:
             if ests:
                 e = dict(elasticity=float(np.mean([x["elasticity"] for x in ests])),
                          ci90=[min(x["ci90"][0] for x in ests), max(x["ci90"][1] for x in ests)])
-                source = f"same-category items ({', '.join(x['item'] for x in ests)})"
+                source = f"past price changes of similar items ({', '.join(x['item'] for x in ests)})"
             else:
                 e = dict(elasticity=0.8, ci90=[0.4, 1.2])
-                source = "assumed typical value for street food (no price history)"
+                source = "a typical value for street food (this item never changed price, so this is a guess)"
         a, b = self._period(None, None, 60)
         m = self._mask(a, b) & (self.daily.phase.values == "classes")
         q0 = float(self.units.loc[m, iid].tail(days).mean()) if m.any() else float(self.units[iid].mean())
@@ -446,8 +545,9 @@ class StallAnalytics:
                 "now": base, "after_most_likely": mid, "after_if_customers_more_sensitive": lo,
                 "after_if_customers_less_sensitive": hi,
                 "profit_change_per_day": _r(mid["profit_per_day"] - base["profit_per_day"]),
-                "note": "Other items' sales may also shift (customers switch); not included."}
+                "note": "Some customers may switch to other items; that is not counted here."}
 
+    @_memo
     def simulate_hours(self, extra_hour: int, days=30):
         """Rough value of opening one hour earlier/later, from the adjacent hour's sales."""
         prof = self.hourly_profile(days=days, phase="classes")["per_hour"]
@@ -460,9 +560,11 @@ class StallAnalytics:
         est = 0.45 * max(nb) if nb else 0
         return {"hour": f"{h:02d}:00", "est_extra_revenue_per_day": _r(est),
                 "range": [_r(est * 0.5), _r(est * 1.2)],
-                "method": "45% of the busier neighbouring hour (demand thins at the edges of opening hours)"}
+                "method": "a guess: about 45% of the sales of the busier hour next to it, since fewer people come "
+                          "at the start and end of the day"}
 
     # ------------------------------------------------------------------ diagnosis
+    @_memo
     def compare_periods(self, a_start, a_end, b_start, b_end):
         A = self._period(a_start, a_end); B = self._period(b_start, b_end)
         def stats(p):
@@ -484,7 +586,7 @@ class StallAnalytics:
         chg = lambda x, y: _r((y - x) / x * 100, 1) if x else None
         drivers = []
         drivers.append(("payments per day", chg(sa["payments_per_day"], sb["payments_per_day"])))
-        drivers.append(("average ticket", chg(sa["avg_ticket"], sb["avg_ticket"])))
+        drivers.append(("average bill", chg(sa["avg_ticket"], sb["avg_ticket"])))
         for sl in SLOT_HOURS:
             if not (sa["slot_rev"][sl] or sb["slot_rev"][sl]):
                 continue                                         # stall not open in this slot
@@ -494,7 +596,8 @@ class StallAnalytics:
         if sb["closed_days"] != sa["closed_days"]:
             notes.append(f"closed days: {sa['closed_days']} vs {sb['closed_days']}")
         if sa["phase_mix"] != sb["phase_mix"]:
-            notes.append(f"academic calendar differs: {sa['phase_mix']} vs {sb['phase_mix']}")
+            mix = lambda m: ", ".join(f"{v} {k.replace('_', ' ')}" for k, v in sorted(m.items(), key=lambda x: -x[1]))
+            notes.append(f"academic calendar differs: A had {mix(sa['phase_mix'])} days; B had {mix(sb['phase_mix'])} days")
         if sa["avg_tmax"] and sb["avg_tmax"] and abs(sa["avg_tmax"] - sb["avg_tmax"]) > 4:
             notes.append(f"weather: avg max temp {sa['avg_tmax']:.0f}C vs {sb['avg_tmax']:.0f}C")
         if sa["rainy_days"] is not None and abs(sa["rainy_days"] - sb["rainy_days"]) >= 3:
@@ -506,6 +609,7 @@ class StallAnalytics:
                 "customers": dict(in_a=len(sa["payers"]), in_b=len(sb["payers"]), new_in_b=new, not_returning=lost),
                 "context": notes}
 
+    @_memo
     def detect_shifts(self, min_days=14):
         """Find lasting level shifts in each time slot (e.g. a competitor opening)."""
         d = self.daily
@@ -530,11 +634,13 @@ class StallAnalytics:
                 if best is None or abs(t) > abs(best[1]):
                     best = (ser.index[k], t, pre.mean(), post.mean())
             if best and abs(best[1]) > 4:
-                out.append(dict(slot=sl, hours=f"{h0 % 24:02d}-{(h1 + 1) % 24:02d}h", since=str(best[0]),
+                lo_h = max(h0, int(s.hour.min())); hi_h = min(h1, int(s.hour.max()))   # actual trading hours
+                out.append(dict(slot=sl, hours=f"{lo_h % 24:02d}-{(hi_h + 1) % 24:02d}h", since=str(best[0]),
                                 before_per_day=_r(best[2]), after_per_day=_r(best[3]),
                                 change_pct=_r((best[3] - best[2]) / best[2] * 100, 1), t_stat=_r(best[1], 1)))
-        return {"shifts": out, "method": "largest mean shift on class days (t-stat > 4), recent 60 days"}
+        return {"shifts": out, "method": "looks for a clear, lasting rise or fall in one part of the day on class days (last 60 days)"}
 
+    @_memo
     def detect_outages(self, min_expected=8):
         """Hours with zero UPI payments when normally busy -> possible UPI downtime."""
         s = self.sales
@@ -555,6 +661,7 @@ class StallAnalytics:
                         "sales probably shifted to cash or were lost."}
 
     # ------------------------------------------------------------------ customers
+    @_memo
     def customer_insights(self, as_of=None, top=10):
         as_of = pd.to_datetime(as_of).date() if as_of else self.last
         s = self.sales[self.sales.business_date <= as_of]
@@ -580,6 +687,7 @@ class StallAnalytics:
                 "note": "Only UPI customers are visible. Customers are identified by UPI ID."}
 
     # ------------------------------------------------------------------ daily brief
+    @_memo
     def daily_brief(self, day=None):
         day = pd.to_datetime(day).date() if day else self.last + timedelta(days=1)
         rev = self.forecast_revenue(days=7, start=day)
@@ -607,7 +715,7 @@ class StallAnalytics:
                 "prep_list": prep["items"], "top_items": top_items, "alerts": alerts}
 
     def tool_names(self):
-        return ["overview", "sales_mix", "hourly_profile", "combos", "forecast_revenue", "forecast_items",
+        return ["overview", "sales_mix", "sales_by_condition", "hourly_profile", "combos", "forecast_revenue", "forecast_items",
                 "prep_plan", "menu_matrix", "estimate_elasticity", "simulate_price", "simulate_hours",
                 "compare_periods", "detect_shifts", "detect_outages", "customer_insights", "daily_brief"]
 

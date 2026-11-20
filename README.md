@@ -27,6 +27,19 @@ Paytm statement (.xlsx) + menu.csv
 
 ## Quick start
 
+**Easiest (one command):** download or clone the repo, then run
+
+```bash
+./run.sh          # macOS / Linux
+run.bat           # Windows (double-click also works)
+```
+
+It sets everything up the first time (a few minutes), then opens the dashboard at http://localhost:8501.
+Needs Python 3.11 or newer. The sample stall's processed data ships in `data/starter_cache/`, so it opens in seconds.
+The AI chat reads its key from `.env`.
+
+**Step by step (to rebuild everything yourself):**
+
 ```bash
 cd ~/Desktop/Chai_Stall_Analytics
 python3 -m venv .venv && .venv/bin/pip install -r requirements.txt
@@ -42,8 +55,11 @@ The first load decomposes ~50k payments (~80 s); later runs use the cache in `da
 `STALL_PROFILE=redi .venv/bin/python -m src.generator.run`. Data goes to `data/redi/`, reports to `eval/redi/`.
 The first evaluation run takes ~7 min and ~1 GB of memory.
 
-**Chat:** without a key the app uses an offline keyword router. For the Claude agent:
-`export ANTHROPIC_API_KEY=...` before `streamlit run`. Model: `claude-opus-5-5`; override with `STALL_AGENT_MODEL`.
+**Chat assistant (AI):** copy `.env.example` to `.env` and put your Groq key in it (free key from
+console.groq.com), or `export GROQ_API_KEY=...` before `streamlit run`. `.env` is git-ignored, so keys stay private.
+The best available tool-calling model is picked automatically (override with `GROQ_MODEL`). If only
+`ANTHROPIC_API_KEY` is set, the Claude agent is used instead (model `claude-opus-5-5`, override with
+`STALL_AGENT_MODEL`). The rule-based offline router (`src/agent/offline.py`) is kept only as an evaluation baseline.
 
 **Real data:** in the app choose *Upload my files*. Upload a Paytm statement and a `menu.csv` with columns
 `item_id,item,category,price,cost,made_in_batches`. Optional extras: `owner_estimate_daily` (rough units per
@@ -66,7 +82,7 @@ Full details are in [eval/report.md](eval/report.md).
 | Prep plan vs owner's habit | +₹1,380 profit on batch items in 6 weeks; waste 2,021 → 1,319 units, but more stockouts |
 | Competitor detection | **found**: evening (4–7 PM) sales −14% from 21 Sep, the exact opening date; also flags a midday rise from 31 Aug |
 | UPI outages | 3 of 3 found, 1 false alarm |
-| Agent, offline router baseline | 58% right tool, 100% faithful numbers, 100% end with an action |
+| Agent, offline router baseline | 94% right tool (was 58% before the rewrite), 100% faithful numbers, 100% end with an action |
 
 Results depend on the random seed: earlier draws of the simulation gave item-mix error 24.8–28.7%,
 forecast 13.0–14.1% and prep gain +₹1,035 to +₹3,790. Report results over several seeds before
@@ -124,7 +140,7 @@ What the real menu shows:
 src/generator/   synthetic stall: config (research-backed), config_redi (real menu), weather, people, simulate, statement
 src/profiles.py  STALL_PROFILE=chai|redi -> which stall and which data folders
 src/pipeline/    ingest, menu, decompose (EM), forecast, analytics (all tools)
-src/agent/       tools (JSON schemas), agent (Claude tool loop + faithfulness check), offline router
+src/agent/       tools (JSON schemas), agent (Claude tool loop + faithfulness check), groq_agent, offline router
 eval/            evaluate_pipeline.py, evaluate_agent.py, agent_questions.json, report.md
 data/raw/        what the owner provides + public context (calendar, weather)
 data/answer_key/ ground truth (never read by the pipeline)
@@ -141,7 +157,8 @@ app.py           Streamlit app
 - **Advice only.** No ordering, payments or price changes.
 - Hand-written tool-use loop (no framework), so every call is logged and easy to explain.
   Server-side refusal fallback is enabled.
-- Evaluate: `python -m eval.evaluate_agent --offline` (free) or `python -m eval.evaluate_agent`
+- Same tools, rules and number check for the Groq and Claude agents (`src/agent/groq_agent.py`, `agent.py`).
+- Evaluate: `python -m eval.evaluate_agent --offline` (free), `--groq` (Groq) or no flag
   (Claude; 36 questions, costs API credits).
 
 ## Re-running with different assumptions
